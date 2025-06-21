@@ -1,6 +1,6 @@
-# vaciniciapp
+# VaciniciApp
 
-A new Flutter project.
+O Aplicativo Vacinici é um app cujo o objetivo central é ser uma carteirinha de vacinação totalmente acessível e on-line!
 
 ## Getting Started
 
