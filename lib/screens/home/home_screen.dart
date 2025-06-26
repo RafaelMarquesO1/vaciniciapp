@@ -210,11 +210,17 @@ class _HomeScreenState extends State<HomeScreen> {
                   children: [
                     const Icon(Icons.people_outline, color: AppTheme.primaryColor, size: 20),
                     const SizedBox(width: 8),
-                    Text(
-                      'Profissionais de Saúde',
-                      style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                        fontWeight: FontWeight.bold,
+                    Expanded(
+                      child: Text(
+                        'Profissionais de Saúde',
+                        style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                          fontWeight: FontWeight.bold,
+                        ),
                       ),
+                    ),
+                    TextButton(
+                      onPressed: () => Navigator.of(context).pushNamed(AppRoutes.professionals),
+                      child: const Text('Ver todos'),
                     ),
                   ],
                 ),
@@ -229,10 +235,17 @@ class _HomeScreenState extends State<HomeScreen> {
                     itemCount: nurses.length,
                     itemBuilder: (context, index) {
                       final nurse = nurses[index];
-                      return _ProfessionalCard(
-                        name: nurse.nomeCompleto,
-                        role: nurse.cargo ?? 'Enfermeiro(a)',
-                        isFirst: index == 0,
+                      return GestureDetector(
+                        onTap: () => Navigator.pushNamed(
+                          context,
+                          AppRoutes.professionalDetail,
+                          arguments: nurse,
+                        ),
+                        child: _ProfessionalCard(
+                          name: nurse.nomeCompleto,
+                          role: nurse.cargo ?? 'Enfermeiro(a)',
+                          isFirst: index == 0,
+                        ),
                       );
                     },
                   ),

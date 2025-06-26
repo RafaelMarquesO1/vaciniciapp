@@ -10,6 +10,8 @@ import 'package:vaciniciapp/screens/statistics/statistics_screen.dart';
 import 'package:vaciniciapp/screens/settings/settings_screen.dart';
 import 'package:vaciniciapp/screens/forgot_password/forgot_password_screen.dart';
 import 'package:vaciniciapp/screens/edit_profile/edit_profile_screen.dart';
+import 'package:vaciniciapp/screens/professionals/professionals_screen.dart';
+import 'package:vaciniciapp/screens/professional_detail/professional_detail_screen.dart';
 
 class AppRoutes {
   static const String onboarding = '/';
@@ -23,6 +25,8 @@ class AppRoutes {
   static const String statistics = '/statistics';
   static const String settings = '/settings';
   static const String editProfile = '/edit-profile';
+  static const String professionals = '/professionals';
+  static const String professionalDetail = '/professional-detail';
 
   static final Map<String, WidgetBuilder> routes = {
     onboarding: (context) => const OnboardingScreen(),
@@ -36,5 +40,7 @@ class AppRoutes {
     statistics: (context) => const StatisticsScreen(),
     settings: (context) => const SettingsScreen(),
     editProfile: (context) => const EditProfileScreen(),
+    professionals: (context) => const ProfessionalsScreen(),
+    professionalDetail: (context) => const ProfessionalDetailScreen(),
   };
 }

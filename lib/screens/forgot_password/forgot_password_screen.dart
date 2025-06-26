@@ -40,7 +40,7 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
 
   String? _validatePassword(String? value) {
     if (value == null || value.isEmpty) return 'Senha é obrigatória';
-    if (value.length < 6) return 'Senha deve ter pelo menos 6 caracteres';
+    if (value.length < 8) return 'Senha deve ter pelo menos 8 caracteres';
     return null;
   }
 

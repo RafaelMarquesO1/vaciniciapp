@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:mask_text_input_formatter/mask_text_input_formatter.dart';
 import 'package:vaciniciapp/routes/app_routes.dart';
 import 'package:vaciniciapp/theme/app_theme.dart';
 
@@ -16,6 +17,11 @@ class _LoginScreenState extends State<LoginScreen> {
   final _passwordController = TextEditingController();
   bool _obscurePassword = true;
   bool _isLoading = false;
+  
+  final _cpfFormatter = MaskTextInputFormatter(
+    mask: '###.###.###-##',
+    filter: {"#": RegExp(r'[0-9]')},
+  );
 
   @override
   void dispose() {
@@ -28,7 +34,8 @@ class _LoginScreenState extends State<LoginScreen> {
     if (value == null || value.isEmpty) {
       return 'CPF é obrigatório';
     }
-    if (value.length != 11) {
+    String cleanCpf = value.replaceAll(RegExp(r'[^0-9]'), '');
+    if (cleanCpf.length != 11) {
       return 'CPF deve ter 11 dígitos';
     }
     return null;
@@ -38,8 +45,8 @@ class _LoginScreenState extends State<LoginScreen> {
     if (value == null || value.isEmpty) {
       return 'Senha é obrigatória';
     }
-    if (value.length < 6) {
-      return 'Senha deve ter pelo menos 6 caracteres';
+    if (value.length < 8) {
+      return 'Senha deve ter pelo menos 8 caracteres';
     }
     return null;
   }
@@ -92,7 +99,7 @@ class _LoginScreenState extends State<LoginScreen> {
                 
                 const SizedBox(height: 60),
                 
-                // Ilustração
+                // Ilustração (Icone de vacina)
                 Container(
                   height: 120,
                   margin: const EdgeInsets.only(bottom: 40),
@@ -112,10 +119,7 @@ class _LoginScreenState extends State<LoginScreen> {
                     prefixIcon: Icon(Icons.person_outline),
                   ),
                   keyboardType: TextInputType.number,
-                  inputFormatters: [
-                    FilteringTextInputFormatter.digitsOnly,
-                    LengthLimitingTextInputFormatter(11),
-                  ],
+                  inputFormatters: [_cpfFormatter],
                   validator: _validateCPF,
                 ),
                 

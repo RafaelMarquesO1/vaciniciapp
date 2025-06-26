@@ -13,8 +13,24 @@ class MockData {
   );
 
   static final List<Usuario> enfermeiros = [
-    Usuario(usuarioID: 101, nomeCompleto: 'Enfermeira Maria', cpf: '101.101.101-01', tipoUsuario: 'Funcionario', cargo: 'Enfermeira'),
-    Usuario(usuarioID: 102, nomeCompleto: 'Enfermeira Stephanie', cpf: '102.102.102-02', tipoUsuario: 'Funcionario', cargo: 'Enfermeira'),
+    Usuario(
+      usuarioID: 101, 
+      nomeCompleto: 'Enfermeira Maria Silva', 
+      cpf: '101.101.101-01', 
+      tipoUsuario: 'Funcionario', 
+      cargo: 'Enfermeira',
+      email: 'maria.silva@ubs.gov.br',
+      telefone: '(11) 98765-4321',
+    ),
+    Usuario(
+      usuarioID: 102, 
+      nomeCompleto: 'Enfermeira Stephanie Santos', 
+      cpf: '102.102.102-02', 
+      tipoUsuario: 'Funcionario', 
+      cargo: 'Enfermeira',
+      email: 'stephanie.santos@ubs.gov.br',
+      telefone: '(11) 91234-5678',
+    ),
   ];
   
   static final List<HistoricoVacina> historicoDeVacinas = [

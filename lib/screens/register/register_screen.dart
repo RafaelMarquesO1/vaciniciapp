@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:mask_text_input_formatter/mask_text_input_formatter.dart';
 import 'package:vaciniciapp/routes/app_routes.dart';
 import 'package:vaciniciapp/theme/app_theme.dart';
 
@@ -18,6 +19,11 @@ class _RegisterScreenState extends State<RegisterScreen> {
   bool _obscurePassword = true;
   bool _isLoading = false;
   bool _acceptTerms = false;
+  
+  final _cpfFormatter = MaskTextInputFormatter(
+    mask: '###.###.###-##',
+    filter: {"#": RegExp(r'[0-9]')},
+  );
 
   @override
   void dispose() {
@@ -34,7 +40,8 @@ class _RegisterScreenState extends State<RegisterScreen> {
 
   String? _validateCPF(String? value) {
     if (value == null || value.isEmpty) return 'CPF é obrigatório';
-    if (value.length != 11) return 'CPF deve ter 11 dígitos';
+    String cleanCpf = value.replaceAll(RegExp(r'[^0-9]'), '');
+    if (cleanCpf.length != 11) return 'CPF deve ter 11 dígitos';
     return null;
   }
 
@@ -87,13 +94,11 @@ class _RegisterScreenState extends State<RegisterScreen> {
                   controller: _cpfController,
                   decoration: const InputDecoration(
                     labelText: 'CPF',
+                    hintText: '000.000.000-00',
                     prefixIcon: Icon(Icons.badge_outlined),
                   ),
                   keyboardType: TextInputType.number,
-                  inputFormatters: [
-                    FilteringTextInputFormatter.digitsOnly,
-                    LengthLimitingTextInputFormatter(11),
-                  ],
+                  inputFormatters: [_cpfFormatter],
                   validator: _validateCPF,
                 ),
                 const SizedBox(height: 16),

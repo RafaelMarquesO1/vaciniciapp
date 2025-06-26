@@ -14,7 +14,7 @@ class VaccineDetailScreen extends StatelessWidget {
     return Scaffold(
       body: CustomScrollView(
         slivers: [
-          // App Bar personalizada
+          // App Bar personalizada (Revisada)
           SliverAppBar(
             expandedHeight: 200,
             floating: false,
@@ -137,7 +137,7 @@ class VaccineDetailScreen extends StatelessWidget {
                 
                 const SizedBox(height: 24),
                 
-                // Informações detalhadas
+                // Informações detalhadas da vacina
                 Text(
                   'Informações da Aplicação',
                   style: Theme.of(context).textTheme.titleLarge?.copyWith(
@@ -147,7 +147,7 @@ class VaccineDetailScreen extends StatelessWidget {
                 
                 const SizedBox(height: 16),
                 
-                // Grid de informações
+                // Grid de informações da vacina (decidindo)
                 _InfoCard(
                   icon: Icons.calendar_today,
                   title: 'Data de Aplicação',

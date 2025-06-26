@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:vaciniciapp/routes/app_routes.dart';
 import 'package:vaciniciapp/theme/app_theme.dart';
 
 class SettingsScreen extends StatefulWidget {
@@ -61,6 +62,15 @@ class _SettingsScreenState extends State<SettingsScreen> {
             subtitle: 'Modificar sua senha de acesso',
             trailing: const Icon(Icons.chevron_right, color: AppTheme.textColorSecondary),
             onTap: () {},
+          ),
+          const SizedBox(height: 24),
+          Text('Equipe', style: Theme.of(context).textTheme.titleLarge),
+          const SizedBox(height: 16),
+          _SettingsTile(
+            title: 'Profissionais de Saúde',
+            subtitle: 'Ver equipe médica disponível',
+            trailing: const Icon(Icons.chevron_right, color: AppTheme.textColorSecondary),
+            onTap: () => Navigator.of(context).pushNamed(AppRoutes.professionals),
           ),
           const SizedBox(height: 24),
           Text('Dados', style: Theme.of(context).textTheme.titleLarge),
