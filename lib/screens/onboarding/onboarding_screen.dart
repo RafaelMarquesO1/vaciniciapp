@@ -1,184 +1,212 @@
 import 'package:flutter/material.dart';
-import 'package:fl_chart/fl_chart.dart';
 import 'package:vaciniciapp/routes/app_routes.dart';
 import 'package:vaciniciapp/theme/app_theme.dart';
-import 'package:vaciniciapp/data/mock_data.dart';
 
-class OnboardingScreen extends StatelessWidget {
+class OnboardingScreen extends StatefulWidget {
   const OnboardingScreen({super.key});
 
   @override
-  Widget build(BuildContext context) {
-    final screenHeight = MediaQuery.of(context).size.height;
+  State<OnboardingScreen> createState() => _OnboardingScreenState();
+}
+
+class _OnboardingScreenState extends State<OnboardingScreen>
+    with TickerProviderStateMixin {
+  late AnimationController _fadeController;
+  late AnimationController _slideController;
+  late Animation<double> _fadeAnimation;
+  late Animation<Offset> _slideAnimation;
+
+  @override
+  void initState() {
+    super.initState();
+    _fadeController = AnimationController(
+      duration: const Duration(milliseconds: 1500),
+      vsync: this,
+    );
+    _slideController = AnimationController(
+      duration: const Duration(milliseconds: 1200),
+      vsync: this,
+    );
     
+    _fadeAnimation = Tween<double>(begin: 0.0, end: 1.0).animate(
+      CurvedAnimation(parent: _fadeController, curve: Curves.easeInOut),
+    );
+    
+    _slideAnimation = Tween<Offset>(
+      begin: const Offset(0, 0.3),
+      end: Offset.zero,
+    ).animate(CurvedAnimation(parent: _slideController, curve: Curves.easeOutCubic));
+    
+    _fadeController.forward();
+    Future.delayed(const Duration(milliseconds: 300), () {
+      _slideController.forward();
+    });
+  }
+
+  @override
+  void dispose() {
+    _fadeController.dispose();
+    _slideController.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
     return Scaffold(
-      body: SafeArea(
-        child: Stack(
-          children: [
-            // Widget de usuário no canto superior direito
-            Positioned(
-              top: 16,
-              right: 16,
-              child: Container(
-                padding: const EdgeInsets.all(8),
-                decoration: BoxDecoration(
-                  color: Colors.white,
-                  borderRadius: BorderRadius.circular(12),
-                  boxShadow: [
-                    BoxShadow(
-                      color: AppTheme.primaryColor.withOpacity(0.1),
-                      blurRadius: 8,
-                      offset: const Offset(0, 2),
-                    ),
-                  ],
-                ),
-                child: Row(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    CircleAvatar(
-                      radius: 16,
-                      backgroundColor: AppTheme.primaryColor,
-                      child: Text(
-                        MockData.loggedInUser.nomeCompleto.split(' ').map((e) => e[0]).take(2).join(),
-                        style: const TextStyle(color: Colors.white, fontSize: 12, fontWeight: FontWeight.bold),
-                      ),
-                    ),
-                    const SizedBox(width: 8),
-                    Text(
-                      MockData.loggedInUser.nomeCompleto.split(' ')[0],
-                      style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w500),
-                    ),
-                  ],
-                ),
-              ),
-            ),
-            // Conteúdo principal
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 24.0, vertical: 16.0),
-              child: Column(
-                children: [
-                  const Spacer(flex: 1),
-              
-                  // Logo
-                  Text(
-                    'Vacinici',
-                    style: Theme.of(context).textTheme.displayLarge?.copyWith(
-                      color: AppTheme.primaryColor,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-                  
-                  const Spacer(flex: 1),
-                  
-                  // Gráfico de desenvolvimento
-                  Container(
-                    height: screenHeight * 0.25,
-                    width: double.infinity,
-                    padding: const EdgeInsets.all(16),
-                    decoration: BoxDecoration(
-                      color: Colors.white,
-                      borderRadius: BorderRadius.circular(16),
-                      boxShadow: [
-                        BoxShadow(
-                          color: AppTheme.primaryColor.withOpacity(0.08),
-                          spreadRadius: 0,
-                          blurRadius: 20,
-                          offset: const Offset(0, 4),
-                        )
-                      ],
-                    ),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          'Vacinação em Desenvolvimento',
-                          style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                            fontWeight: FontWeight.bold,
-                            color: AppTheme.primaryColor,
-                          ),
-                        ),
-                        const SizedBox(height: 8),
-                        Expanded(
-                          child: LineChart(
-                            LineChartData(
-                              gridData: const FlGridData(show: false),
-                              titlesData: const FlTitlesData(show: false),
-                              borderData: FlBorderData(show: false),
-                              lineBarsData: [
-                                LineChartBarData(
-                                  spots: const [
-                                    FlSpot(0, 1),
-                                    FlSpot(1, 3),
-                                    FlSpot(2, 2),
-                                    FlSpot(3, 5),
-                                    FlSpot(4, 4),
-                                    FlSpot(5, 6),
-                                  ],
-                                  isCurved: true,
-                                  color: AppTheme.primaryColor,
-                                  barWidth: 3,
-                                  dotData: const FlDotData(show: false),
-                                  belowBarData: BarAreaData(
-                                    show: true,
-                                    color: AppTheme.primaryColor.withOpacity(0.1),
-                                  ),
-                                ),
-                              ],
-                            ),
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                  
-                  const Spacer(flex: 1),
-                  
-                  // Textos
-                  Column(
+      body: Container(
+        decoration: BoxDecoration(
+          gradient: LinearGradient(
+            begin: Alignment.topLeft,
+            end: Alignment.bottomRight,
+            colors: [
+              AppTheme.backgroundColor,
+              AppTheme.primaryColor.withOpacity(0.05),
+            ],
+          ),
+        ),
+        child: SafeArea(
+          child: Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 32.0, vertical: 24.0),
+            child: Column(
+              children: [
+                const Spacer(flex: 2),
+            
+                // Logo e ícone animados
+                FadeTransition(
+                  opacity: _fadeAnimation,
+                  child: Column(
                     children: [
-                      Text(
-                        'Carteira de Vacinação\nDigital',
-                        style: Theme.of(context).textTheme.headlineSmall?.copyWith(
-                          fontWeight: FontWeight.bold,
-                          height: 1.2,
+                      Container(
+                        padding: const EdgeInsets.all(24),
+                        decoration: BoxDecoration(
+                          gradient: LinearGradient(
+                            colors: [
+                              AppTheme.primaryColor.withOpacity(0.1),
+                              AppTheme.primaryColor.withOpacity(0.05),
+                            ],
+                          ),
+                          borderRadius: BorderRadius.circular(30),
+                          boxShadow: [
+                            BoxShadow(
+                              color: AppTheme.primaryColor.withOpacity(0.2),
+                              blurRadius: 20,
+                              offset: const Offset(0, 10),
+                            ),
+                          ],
                         ),
-                        textAlign: TextAlign.center,
+                        child: const Icon(
+                          Icons.vaccines,
+                          size: 80,
+                          color: AppTheme.primaryColor,
+                        ),
                       ),
-                      const SizedBox(height: 16),
+                      const SizedBox(height: 32),
                       Text(
-                        'Tenha sua carteira de vacinação sempre em mãos.\nSegura, prática e sempre atualizada.',
-                        style: Theme.of(context).textTheme.bodyLarge?.copyWith(
-                          color: AppTheme.textColorSecondary,
-                          height: 1.4,
+                        'Vacinici',
+                        style: Theme.of(context).textTheme.displayMedium?.copyWith(
+                          color: AppTheme.primaryColor,
+                          fontWeight: FontWeight.bold,
+                          letterSpacing: -1,
                         ),
-                        textAlign: TextAlign.center,
                       ),
                     ],
                   ),
-                  
-                  const Spacer(flex: 1),
-                  
-                  // Botão
-                  SizedBox(
-                    width: double.infinity,
-                    height: 56,
-                    child: ElevatedButton(
-                      onPressed: () {
-                        Navigator.of(context).pushReplacementNamed(AppRoutes.login);
-                      },
-                      style: ElevatedButton.styleFrom(
-                        elevation: 0,
-                        shadowColor: Colors.transparent,
-                      ),
-                      child: const Text('Começar'),
+                ),
+                
+                const Spacer(flex: 2),
+                
+                // Textos animados
+                SlideTransition(
+                  position: _slideAnimation,
+                  child: FadeTransition(
+                    opacity: _fadeAnimation,
+                    child: Column(
+                      children: [
+                        Text(
+                          'Sua Saúde\nem Primeiro Lugar',
+                          style: Theme.of(context).textTheme.headlineMedium?.copyWith(
+                            fontWeight: FontWeight.bold,
+                            height: 1.2,
+                            color: AppTheme.textColorPrimary,
+                          ),
+                          textAlign: TextAlign.center,
+                        ),
+                        const SizedBox(height: 20),
+                        Text(
+                          'Gerencie sua carteira de vacinação de forma digital, segura e prática. Tenha todas as informações sempre à mão.',
+                          style: Theme.of(context).textTheme.bodyLarge?.copyWith(
+                            color: AppTheme.textColorSecondary,
+                            height: 1.5,
+                          ),
+                          textAlign: TextAlign.center,
+                        ),
+                      ],
                     ),
                   ),
-                  
-                  const Spacer(flex: 1),
-                ],
-              ),
+                ),
+                
+                const Spacer(flex: 2),
+                
+                // Botão animado
+                SlideTransition(
+                  position: _slideAnimation,
+                  child: FadeTransition(
+                    opacity: _fadeAnimation,
+                    child: Container(
+                      width: double.infinity,
+                      height: 56,
+                      decoration: BoxDecoration(
+                        gradient: LinearGradient(
+                          colors: [AppTheme.primaryColor, AppTheme.accentColor],
+                        ),
+                        borderRadius: BorderRadius.circular(16),
+                        boxShadow: [
+                          BoxShadow(
+                            color: AppTheme.primaryColor.withOpacity(0.4),
+                            blurRadius: 15,
+                            offset: const Offset(0, 8),
+                          ),
+                        ],
+                      ),
+                      child: ElevatedButton(
+                        onPressed: () {
+                          Navigator.of(context).pushReplacementNamed(AppRoutes.login);
+                        },
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: Colors.transparent,
+                          shadowColor: Colors.transparent,
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(16),
+                          ),
+                        ),
+                        child: const Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            Text(
+                              'Começar Agora',
+                              style: TextStyle(
+                                color: Colors.white,
+                                fontSize: 16,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                            SizedBox(width: 8),
+                            Icon(
+                              Icons.arrow_forward,
+                              color: Colors.white,
+                              size: 20,
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
+                  ),
+                ),
+                
+                const Spacer(flex: 1),
+              ],
             ),
-          ],
+          ),
         ),
       ),
     );

@@ -43,21 +43,6 @@ class StatisticsScreen extends StatelessWidget {
               color: Colors.green,
             ),
             const SizedBox(height: 24),
-            Text('Histórico Mensal', style: Theme.of(context).textTheme.titleLarge),
-            const SizedBox(height: 16),
-            Container(
-              height: 200,
-              padding: const EdgeInsets.all(20),
-              decoration: BoxDecoration(
-                color: Colors.white,
-                borderRadius: BorderRadius.circular(16),
-                boxShadow: AppTheme.cardShadow,
-              ),
-              child: const Center(
-                child: Text('Gráfico de vacinas por mês\n(Em desenvolvimento)'),
-              ),
-            ),
-            const SizedBox(height: 24),
             Text('Vacinas por Categoria', style: Theme.of(context).textTheme.titleLarge),
             const SizedBox(height: 16),
             _CategoryItem('COVID-19', 2, AppTheme.primaryColor),

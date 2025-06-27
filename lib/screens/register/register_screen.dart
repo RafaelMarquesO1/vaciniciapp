@@ -77,8 +77,18 @@ class _RegisterScreenState extends State<RegisterScreen> {
                       icon: const Icon(Icons.arrow_back),
                     ),
                     const SizedBox(width: 8),
-                    Text('Criar Conta', style: Theme.of(context).textTheme.headlineSmall),
+                    Text('Criar Conta', style: Theme.of(context).textTheme.headlineSmall?.copyWith(
+                      fontWeight: FontWeight.bold,
+                      color: AppTheme.textColorPrimary,
+                    )),
                   ],
+                ),
+                const SizedBox(height: 16),
+                Text(
+                  'Preencha os dados para criar sua conta',
+                  style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                    color: AppTheme.textColorSecondary,
+                  ),
                 ),
                 const SizedBox(height: 32),
                 TextFormField(

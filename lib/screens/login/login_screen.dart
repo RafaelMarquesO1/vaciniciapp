@@ -99,14 +99,26 @@ class _LoginScreenState extends State<LoginScreen> {
                 
                 const SizedBox(height: 60),
                 
-                // Ilustração (Icone de vacina)
+                // Ilustração (Ícone de vacina)
                 Container(
-                  height: 120,
+                  height: 100,
                   margin: const EdgeInsets.only(bottom: 40),
-                  child: const Icon(
-                    Icons.login_rounded,
-                    size: 80,
-                    color: AppTheme.primaryColor,
+                  child: Container(
+                    padding: const EdgeInsets.all(20),
+                    decoration: BoxDecoration(
+                      gradient: LinearGradient(
+                        colors: [
+                          AppTheme.primaryColor.withOpacity(0.1),
+                          AppTheme.primaryColor.withOpacity(0.05),
+                        ],
+                      ),
+                      borderRadius: BorderRadius.circular(30),
+                    ),
+                    child: const Icon(
+                      Icons.vaccines,
+                      size: 60,
+                      color: AppTheme.primaryColor,
+                    ),
                   ),
                 ),
                 

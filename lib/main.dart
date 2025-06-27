@@ -18,6 +18,11 @@ class MyApp extends StatelessWidget {
       theme: AppTheme.lightTheme,
       initialRoute: AppRoutes.onboarding,
       routes: AppRoutes.routes,
+      onUnknownRoute: (settings) => MaterialPageRoute(
+        builder: (context) => const Scaffold(
+          body: Center(child: Text('Página não encontrada')),
+        ),
+      ),
     );
   }
 }
