@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+import 'package:vaciniciapp/providers/theme_provider.dart';
 import 'package:vaciniciapp/routes/app_routes.dart';
 import 'package:vaciniciapp/theme/app_theme.dart';
 
@@ -90,7 +92,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
             trailing: Switch(
               value: notificationsEnabled,
               onChanged: (value) => setState(() => notificationsEnabled = value),
-              activeColor: AppTheme.primaryColor,
+              activeColor: Theme.of(context).brightness == Brightness.dark ? AppTheme.darkPrimaryColor : AppTheme.primaryColor,
             ),
           ),
           _SettingsTile(
@@ -99,7 +101,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
             trailing: Switch(
               value: reminderEnabled,
               onChanged: (value) => setState(() => reminderEnabled = value),
-              activeColor: AppTheme.primaryColor,
+              activeColor: Theme.of(context).brightness == Brightness.dark ? AppTheme.darkPrimaryColor : AppTheme.primaryColor,
             ),
           ),
           const SizedBox(height: 32),
@@ -109,13 +111,26 @@ class _SettingsScreenState extends State<SettingsScreen> {
             subtitle: 'Proteja sua conta',
           ),
           const SizedBox(height: 16),
+          Consumer<ThemeProvider>(
+            builder: (context, themeProvider, child) {
+              return _SettingsTile(
+                title: 'Tema Escuro',
+                subtitle: 'Alternar entre tema claro e escuro',
+                trailing: Switch(
+                  value: themeProvider.isDarkMode,
+                  onChanged: (value) => themeProvider.toggleTheme(),
+                  activeColor: themeProvider.isDarkMode ? AppTheme.darkPrimaryColor : AppTheme.primaryColor,
+                ),
+              );
+            },
+          ),
           _SettingsTile(
             title: 'Autenticação Biométrica',
             subtitle: 'Usar digital ou Face ID',
             trailing: Switch(
               value: biometricEnabled,
               onChanged: (value) => setState(() => biometricEnabled = value),
-              activeColor: AppTheme.primaryColor,
+              activeColor: Theme.of(context).brightness == Brightness.dark ? AppTheme.darkPrimaryColor : AppTheme.primaryColor,
             ),
           ),
           _SettingsTile(

@@ -3,6 +3,7 @@ import 'package:intl/intl.dart';
 import 'package:vaciniciapp/data/mock_data.dart';
 import 'package:vaciniciapp/routes/app_routes.dart';
 import 'package:vaciniciapp/theme/app_theme.dart';
+import 'package:vaciniciapp/widgets/animated_fab.dart';
 
 class VaccineCardScreen extends StatefulWidget {
   const VaccineCardScreen({super.key});
@@ -44,8 +45,8 @@ class _VaccineCardScreenState extends State<VaccineCardScreen> {
             expandedHeight: 120,
             floating: false,
             pinned: true,
-            backgroundColor: AppTheme.backgroundColor,
-            foregroundColor: AppTheme.textColorPrimary,
+            backgroundColor: Colors.transparent,
+            foregroundColor: Theme.of(context).textTheme.titleLarge?.color,
             elevation: 0,
             flexibleSpace: FlexibleSpaceBar(
               title: const Text(
@@ -60,10 +61,9 @@ class _VaccineCardScreenState extends State<VaccineCardScreen> {
                   gradient: LinearGradient(
                     begin: Alignment.topLeft,
                     end: Alignment.bottomRight,
-                    colors: [
-                      AppTheme.primaryColorLight,
-                      AppTheme.backgroundColor,
-                    ],
+                    colors: Theme.of(context).brightness == Brightness.dark
+                        ? [AppTheme.darkSurfaceColor, AppTheme.darkBackgroundColor]
+                        : [AppTheme.primaryColorLight, AppTheme.backgroundColor],
                   ),
                 ),
               ),
@@ -76,27 +76,33 @@ class _VaccineCardScreenState extends State<VaccineCardScreen> {
               margin: const EdgeInsets.all(20),
               padding: const EdgeInsets.all(20),
               decoration: BoxDecoration(
-                color: Colors.white,
+                color: Theme.of(context).cardColor,
                 borderRadius: BorderRadius.circular(20),
-                boxShadow: [
-                  BoxShadow(
-                    color: AppTheme.primaryColor.withOpacity(0.1),
-                    blurRadius: 15,
-                    offset: const Offset(0, 5),
-                  ),
-                ],
+                boxShadow: Theme.of(context).brightness == Brightness.dark
+                    ? AppTheme.darkCardShadow
+                    : [
+                        BoxShadow(
+                          color: AppTheme.primaryColor.withOpacity(0.1),
+                          blurRadius: 15,
+                          offset: const Offset(0, 5),
+                        ),
+                      ],
               ),
               child: Row(
                 children: [
                   Container(
                     padding: const EdgeInsets.all(12),
                     decoration: BoxDecoration(
-                      color: AppTheme.primaryColorLight,
+                      color: Theme.of(context).brightness == Brightness.dark
+                          ? AppTheme.darkPrimaryColor.withOpacity(0.2)
+                          : AppTheme.primaryColorLight,
                       borderRadius: BorderRadius.circular(16),
                     ),
-                    child: const Icon(
+                    child: Icon(
                       Icons.person,
-                      color: AppTheme.primaryColor,
+                      color: Theme.of(context).brightness == Brightness.dark
+                          ? AppTheme.darkPrimaryColor
+                          : AppTheme.primaryColor,
                       size: 32,
                     ),
                   ),
@@ -122,13 +128,17 @@ class _VaccineCardScreenState extends State<VaccineCardScreen> {
                         Container(
                           padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
                           decoration: BoxDecoration(
-                            color: AppTheme.primaryColor.withOpacity(0.1),
+                            color: (Theme.of(context).brightness == Brightness.dark
+                                ? AppTheme.darkPrimaryColor
+                                : AppTheme.primaryColor).withOpacity(0.1),
                             borderRadius: BorderRadius.circular(12),
                           ),
                           child: Text(
                             '${vaccines.length} vacinas aplicadas',
                             style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                              color: AppTheme.primaryColor,
+                              color: Theme.of(context).brightness == Brightness.dark
+                                  ? AppTheme.darkPrimaryColor
+                                  : AppTheme.primaryColor,
                               fontWeight: FontWeight.w600,
                             ),
                           ),
@@ -159,16 +169,20 @@ class _VaccineCardScreenState extends State<VaccineCardScreen> {
                       margin: const EdgeInsets.only(right: 12),
                       padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
                       decoration: BoxDecoration(
-                        color: isSelected ? AppTheme.primaryColor : Colors.white,
+                        color: isSelected 
+                            ? (Theme.of(context).brightness == Brightness.dark ? AppTheme.darkPrimaryColor : AppTheme.primaryColor)
+                            : Theme.of(context).cardColor,
                         borderRadius: BorderRadius.circular(25),
                         border: Border.all(
-                          color: isSelected ? AppTheme.primaryColor : AppTheme.textColorSecondary.withOpacity(0.3),
+                          color: isSelected 
+                              ? (Theme.of(context).brightness == Brightness.dark ? AppTheme.darkPrimaryColor : AppTheme.primaryColor)
+                              : Theme.of(context).dividerColor,
                         ),
                       ),
                       child: Text(
                         filter,
                         style: TextStyle(
-                          color: isSelected ? Colors.white : AppTheme.textColorSecondary,
+                          color: isSelected ? Colors.white : Theme.of(context).textTheme.bodyMedium?.color,
                           fontWeight: isSelected ? FontWeight.w600 : FontWeight.normal,
                         ),
                       ),
@@ -236,55 +250,29 @@ class _VaccineCardScreenState extends State<VaccineCardScreen> {
       
       // Botão flutuante para download
       floatingActionButton: vaccines.isNotEmpty
-          ? Container(
-              decoration: BoxDecoration(
-                borderRadius: BorderRadius.circular(30),
-                gradient: LinearGradient(
-                  colors: [
-                    AppTheme.primaryColor,
-                    AppTheme.accentColor,
-                  ],
-                  begin: Alignment.topLeft,
-                  end: Alignment.bottomRight,
-                ),
-                boxShadow: [
-                  BoxShadow(
-                    color: AppTheme.primaryColor.withOpacity(0.3),
-                    blurRadius: 15,
-                    offset: const Offset(0, 8),
-                  ),
-                ],
-              ),
-              child: FloatingActionButton.extended(
-                onPressed: () {
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    SnackBar(
-                      content: const Row(
-                        children: [
-                          Icon(Icons.check_circle, color: Colors.white),
-                          SizedBox(width: 12),
-                          Text('Download iniciado!'),
-                        ],
-                      ),
-                      backgroundColor: AppTheme.primaryColor,
-                      behavior: SnackBarBehavior.floating,
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(12),
-                      ),
+          ? AnimatedFab(
+              onPressed: () {
+                ScaffoldMessenger.of(context).showSnackBar(
+                  SnackBar(
+                    content: const Row(
+                      children: [
+                        Icon(Icons.check_circle, color: Colors.white),
+                        SizedBox(width: 12),
+                        Text('Download iniciado!'),
+                      ],
                     ),
-                  );
-                },
-                backgroundColor: Colors.transparent,
-                elevation: 0,
-                icon: const Icon(Icons.download_rounded, color: Colors.white),
-                label: const Text(
-                  'Baixar PDF',
-                  style: TextStyle(
-                    color: Colors.white,
-                    fontWeight: FontWeight.w600,
+                    backgroundColor: Theme.of(context).brightness == Brightness.dark
+                        ? AppTheme.darkPrimaryColor
+                        : AppTheme.primaryColor,
+                    behavior: SnackBarBehavior.floating,
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(12),
+                    ),
                   ),
-                ),
-              ),
+                );
+              },
+              icon: Icons.download_rounded,
+              label: 'Baixar PDF',
             )
           : null,
     );

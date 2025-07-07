@@ -18,6 +18,7 @@ class _LoginScreenState extends State<LoginScreen> {
   bool _obscurePassword = true;
   bool _isLoading = false;
   
+  // Formatação dos pontinhos do CPF
   final _cpfFormatter = MaskTextInputFormatter(
     mask: '###.###.###-##',
     filter: {"#": RegExp(r'[0-9]')},
@@ -66,61 +67,86 @@ class _LoginScreenState extends State<LoginScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final primaryColor = isDark ? AppTheme.darkPrimaryColor : AppTheme.primaryColor;
+    
     return Scaffold(
-      body: SafeArea(
-        child: SingleChildScrollView(
-          padding: const EdgeInsets.all(24.0),
-          child: Form(
-            key: _formKey,
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.stretch,
-              children: [
-                const SizedBox(height: 40),
-                
-                // Header
-                Column(
-                  children: [
-                    Text(
-                      'Vacinici',
-                      style: Theme.of(context).textTheme.displayMedium?.copyWith(
-                        color: AppTheme.primaryColor,
-                        fontWeight: FontWeight.bold,
+      body: Container(
+        decoration: BoxDecoration(
+          gradient: LinearGradient(
+            begin: Alignment.topLeft,
+            end: Alignment.bottomRight,
+            colors: isDark 
+                ? [AppTheme.darkBackgroundColor, AppTheme.darkSurfaceColor]
+                : [AppTheme.backgroundColor, Colors.white],
+          ),
+        ),
+        child: SafeArea(
+          child: SingleChildScrollView(
+            padding: const EdgeInsets.all(24.0),
+            child: Form(
+              key: _formKey,
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  const SizedBox(height: 40),
+                  
+                  // Header
+                  Column(
+                    children: [
+                      ShaderMask(
+                        shaderCallback: (bounds) => LinearGradient(
+                          colors: [primaryColor, primaryColor.withOpacity(0.8)],
+                        ).createShader(bounds),
+                        child: Text(
+                          'Vacinici',
+                          style: Theme.of(context).textTheme.displayMedium?.copyWith(
+                            color: Colors.white,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
                       ),
-                    ),
-                    const SizedBox(height: 8),
-                    Text(
-                      'Entre na sua conta',
-                      style: Theme.of(context).textTheme.bodyLarge?.copyWith(
-                        color: AppTheme.textColorSecondary,
+                      const SizedBox(height: 8),
+                      Text(
+                        'Entre na sua conta',
+                        style: Theme.of(context).textTheme.bodyLarge?.copyWith(
+                          color: Theme.of(context).textTheme.bodyMedium?.color,
+                        ),
                       ),
-                    ),
-                  ],
-                ),
-                
-                const SizedBox(height: 60),
-                
-                // Ilustração (Ícone de vacina)
-                Container(
-                  height: 100,
-                  margin: const EdgeInsets.only(bottom: 40),
-                  child: Container(
-                    padding: const EdgeInsets.all(20),
-                    decoration: BoxDecoration(
-                      gradient: LinearGradient(
-                        colors: [
-                          AppTheme.primaryColor.withOpacity(0.1),
-                          AppTheme.primaryColor.withOpacity(0.05),
+                    ],
+                  ),
+                  
+                  const SizedBox(height: 60),
+                  
+                  // Ilustração (Ícone de vacina)
+                  Container(
+                    height: 120,
+                    margin: const EdgeInsets.only(bottom: 40),
+                    child: Container(
+                      padding: const EdgeInsets.all(24),
+                      decoration: BoxDecoration(
+                        gradient: LinearGradient(
+                          colors: [
+                            primaryColor.withOpacity(0.15),
+                            primaryColor.withOpacity(0.05),
+                          ],
+                        ),
+                        borderRadius: BorderRadius.circular(35),
+                        boxShadow: [
+                          BoxShadow(
+                            color: primaryColor.withOpacity(0.2),
+                            blurRadius: 20,
+                            offset: const Offset(0, 10),
+                          ),
                         ],
                       ),
-                      borderRadius: BorderRadius.circular(30),
-                    ),
-                    child: const Icon(
-                      Icons.vaccines,
-                      size: 60,
-                      color: AppTheme.primaryColor,
+                      child: Icon(
+                        Icons.vaccines,
+                        size: 72,
+                        color: primaryColor,
+                      ),
                     ),
                   ),
-                ),
                 
                 // Campo CPF
                 TextFormField(
@@ -169,7 +195,7 @@ class _LoginScreenState extends State<LoginScreen> {
                     child: Text(
                       'Esqueci minha senha',
                       style: TextStyle(
-                        color: AppTheme.primaryColor,
+                        color: primaryColor,
                         fontWeight: FontWeight.w500,
                       ),
                     ),
@@ -179,10 +205,30 @@ class _LoginScreenState extends State<LoginScreen> {
                 const SizedBox(height: 32),
                 
                 // Botão Login
-                SizedBox(
+                Container(
                   height: 56,
+                  decoration: BoxDecoration(
+                    gradient: LinearGradient(
+                      colors: [primaryColor, primaryColor.withOpacity(0.8)],
+                    ),
+                    borderRadius: BorderRadius.circular(16),
+                    boxShadow: [
+                      BoxShadow(
+                        color: primaryColor.withOpacity(0.3),
+                        blurRadius: 15,
+                        offset: const Offset(0, 8),
+                      ),
+                    ],
+                  ),
                   child: ElevatedButton(
                     onPressed: _isLoading ? null : _handleLogin,
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: Colors.transparent,
+                      shadowColor: Colors.transparent,
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(16),
+                      ),
+                    ),
                     child: _isLoading
                         ? const SizedBox(
                             height: 20,
@@ -192,7 +238,14 @@ class _LoginScreenState extends State<LoginScreen> {
                               valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
                             ),
                           )
-                        : const Text('Entrar'),
+                        : const Text(
+                            'Entrar',
+                            style: TextStyle(
+                              color: Colors.white,
+                              fontSize: 16,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
                   ),
                 ),
                 
@@ -213,14 +266,15 @@ class _LoginScreenState extends State<LoginScreen> {
                       child: Text(
                         'Cadastre-se',
                         style: TextStyle(
-                          color: AppTheme.primaryColor,
+                          color: primaryColor,
                           fontWeight: FontWeight.w600,
                         ),
                       ),
                     ),
                   ],
                 ),
-              ],
+                ],
+              ),
             ),
           ),
         ),
