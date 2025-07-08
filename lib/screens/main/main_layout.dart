@@ -52,10 +52,10 @@ class _MainLayoutState extends State<MainLayout> {
             _selectedIndex = index;
           });
         },
-        children: const [
+        children: [
           HomeScreen(),
-          _ScheduleScreen(),
-          _ProfileScreen(),
+          const _ScheduleScreen(),
+          const _ProfileScreen(),
         ],
       ),
       bottomNavigationBar: Container(
@@ -330,9 +330,10 @@ class _ProfileScreen extends StatelessWidget {
           ),
         ],
       ),
-      body: ResponsivePadding(
-        child: Column(
-          children: [
+      body: SingleChildScrollView(
+        child: ResponsivePadding(
+          child: Column(
+            children: [
             const SizedBox(height: 20),
             AdaptiveCard(
               child: Column(
@@ -428,6 +429,7 @@ class _ProfileScreen extends StatelessWidget {
               ),
             ),
           ],
+        ),
         ),
       ),
     );
