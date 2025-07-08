@@ -3,6 +3,8 @@ import 'package:vaciniciapp/data/mock_data.dart';
 import 'package:vaciniciapp/routes/app_routes.dart';
 import 'package:vaciniciapp/theme/app_theme.dart';
 import 'package:vaciniciapp/widgets/theme_toggle_button.dart';
+import 'package:vaciniciapp/widgets/responsive_widget.dart';
+import 'package:vaciniciapp/widgets/adaptive_card.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -29,6 +31,7 @@ class _HomeScreenState extends State<HomeScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
     final nurses = MockData.enfermeiros;
 
     return Scaffold(
@@ -49,21 +52,9 @@ class _HomeScreenState extends State<HomeScreen> {
             ],
             flexibleSpace: FlexibleSpaceBar(
               background: Container(
-                padding: const EdgeInsets.fromLTRB(20, 45, 20, 15),
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    const _AnimatedVaccineIcon(),
-                    const SizedBox(height: 6),
-                    Text(
-                      _getGreeting(),
-                      style: TextStyle(
-                        fontWeight: FontWeight.w600,
-                        fontSize: 14,
-                        color: Theme.of(context).textTheme.bodyLarge?.color,
-                      ),
-                    ),
-                  ],
+                padding: const EdgeInsets.fromLTRB(20, 45, 20, 10),
+                child: const Center(
+                  child: _AnimatedVaccineIcon(),
                 ),
               ),
             ),
@@ -75,54 +66,26 @@ class _HomeScreenState extends State<HomeScreen> {
             sliver: SliverList(
               delegate: SliverChildListDelegate([
                 // Barra de pesquisa
-                Container(
-                  decoration: BoxDecoration(
-                    gradient: LinearGradient(
-                      colors: Theme.of(context).brightness == Brightness.dark
-                          ? [AppTheme.darkCardColor, AppTheme.darkSurfaceColor]
-                          : [Colors.white, Colors.grey.shade50],
-                      begin: Alignment.topLeft,
-                      end: Alignment.bottomRight,
-                    ),
-                    borderRadius: BorderRadius.circular(20),
-                    boxShadow: Theme.of(context).brightness == Brightness.dark
-                        ? AppTheme.darkCardShadow
-                        : [
-                            BoxShadow(
-                              color: AppTheme.primaryColor.withOpacity(0.1),
-                              blurRadius: 20,
-                              offset: const Offset(0, 5),
-                            ),
-                          ],
-                    border: Border.all(
-                      color: Theme.of(context).brightness == Brightness.dark
-                          ? AppTheme.darkPrimaryColor.withOpacity(0.2)
-                          : AppTheme.primaryColor.withOpacity(0.1),
-                      width: 1,
-                    ),
-                  ),
+                GradientCard(
+                  borderRadius: BorderRadius.circular(20),
                   child: TextField(
                     controller: _searchController,
                     decoration: InputDecoration(
                       hintText: 'Buscar vacinas, agendamentos...',
                       hintStyle: TextStyle(
-                        color: AppTheme.textColorSecondary.withOpacity(0.7),
-                        fontSize: 14,
+                        color: isDark ? AppTheme.darkTextColorTertiary : AppTheme.textColorSecondary.withOpacity(0.7),
+                        fontSize: AppTheme.getResponsiveFontSize(context, 14),
                       ),
                       prefixIcon: Container(
                         margin: const EdgeInsets.all(12),
                         padding: const EdgeInsets.all(8),
                         decoration: BoxDecoration(
-                          color: (Theme.of(context).brightness == Brightness.dark
-                              ? AppTheme.darkPrimaryColor
-                              : AppTheme.primaryColor).withOpacity(0.1),
+                          color: (isDark ? AppTheme.darkPrimaryColor : AppTheme.primaryColor).withOpacity(0.1),
                           borderRadius: BorderRadius.circular(12),
                         ),
                         child: Icon(
                           Icons.search,
-                          color: Theme.of(context).brightness == Brightness.dark
-                              ? AppTheme.darkPrimaryColor
-                              : AppTheme.primaryColor,
+                          color: isDark ? AppTheme.darkPrimaryColor : AppTheme.primaryColor,
                           size: 20,
                         ),
                       ),
@@ -157,13 +120,8 @@ class _HomeScreenState extends State<HomeScreen> {
                 const SizedBox(height: 16),
                 
                 // Grid de categorias
-                GridView.count(
-                  shrinkWrap: true,
-                  physics: const NeverScrollableScrollPhysics(),
-                  crossAxisCount: 3,
-                  crossAxisSpacing: 16,
-                  mainAxisSpacing: 16,
-                  childAspectRatio: 0.85,
+                ResponsiveGrid(
+                  childAspectRatio: context.isMobile ? 0.85 : 1.0,
                   children: [
                     _CategoryCard(
                       icon: Icons.vaccines_outlined,
@@ -292,6 +250,8 @@ class _CategoryCardState extends State<_CategoryCard>
 
   @override
   Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    
     return GestureDetector(
       onTapDown: (_) => _controller.forward(),
       onTapUp: (_) => _controller.reverse(),
@@ -302,41 +262,17 @@ class _CategoryCardState extends State<_CategoryCard>
         builder: (context, child) {
           return Transform.scale(
             scale: _scaleAnimation.value,
-            child: Container(
-              decoration: BoxDecoration(
-                gradient: LinearGradient(
-                  begin: Alignment.topLeft,
-                  end: Alignment.bottomRight,
-                  colors: Theme.of(context).brightness == Brightness.dark
-                      ? [AppTheme.darkCardColor, AppTheme.darkSurfaceColor]
-                      : [Colors.white, widget.color.withOpacity(0.02)],
-                ),
-                borderRadius: BorderRadius.circular(24),
-                boxShadow: Theme.of(context).brightness == Brightness.dark
-                    ? [
-                        BoxShadow(
-                          color: Colors.black.withOpacity(0.3),
-                          blurRadius: 15,
-                          offset: const Offset(0, 6),
-                        ),
-                      ]
-                    : [
-                        BoxShadow(
-                          color: widget.color.withOpacity(0.15),
-                          blurRadius: 20,
-                          offset: const Offset(0, 8),
-                        ),
-                      ],
-                border: Border.all(
-                  color: widget.color.withOpacity(0.1),
-                  width: 1,
-                ),
-              ),
+            child: GradientCard(
+              gradientColors: isDark
+                  ? [AppTheme.darkCardColor, AppTheme.darkSurfaceColor]
+                  : [Colors.white, widget.color.withOpacity(0.02)],
+              borderRadius: BorderRadius.circular(24),
+              margin: EdgeInsets.zero,
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
                   Container(
-                    padding: const EdgeInsets.all(20),
+                    padding: EdgeInsets.all(context.isMobile ? 16 : 20),
                     decoration: BoxDecoration(
                       gradient: LinearGradient(
                         colors: [
@@ -346,14 +282,18 @@ class _CategoryCardState extends State<_CategoryCard>
                       ),
                       borderRadius: BorderRadius.circular(20),
                     ),
-                    child: Icon(widget.icon, size: 28, color: widget.color),
+                    child: Icon(
+                      widget.icon, 
+                      size: context.isMobile ? 24 : 28, 
+                      color: widget.color,
+                    ),
                   ),
                   const SizedBox(height: 12),
-                  Text(
+                  AdaptiveText(
                     widget.label,
                     style: TextStyle(
                       fontWeight: FontWeight.w600,
-                      color: Theme.of(context).textTheme.bodyLarge?.color,
+                      color: isDark ? AppTheme.darkTextColorPrimary : AppTheme.textColorPrimary,
                       fontSize: 13,
                     ),
                     textAlign: TextAlign.center,
@@ -381,65 +321,53 @@ class _ProfessionalCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      width: 120,
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    
+    return AdaptiveCard(
       margin: const EdgeInsets.only(right: 16),
       padding: const EdgeInsets.all(12),
-      decoration: BoxDecoration(
-        color: Theme.of(context).brightness == Brightness.dark
-            ? AppTheme.darkCardColor
-            : Colors.white,
-        borderRadius: BorderRadius.circular(16),
-        boxShadow: Theme.of(context).brightness == Brightness.dark
-            ? AppTheme.darkCardShadow
-            : [
-                BoxShadow(
-                  color: AppTheme.primaryColor.withOpacity(0.08),
-                  blurRadius: 8,
-                  offset: const Offset(0, 2),
-                ),
-              ],
-      ),
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          CircleAvatar(
-            radius: 16,
-            backgroundColor: Theme.of(context).brightness == Brightness.dark
-                ? AppTheme.darkPrimaryColor.withOpacity(0.2)
-                : AppTheme.primaryColorLight,
-            child: Icon(
-              Icons.medical_services_outlined,
-              size: 16,
-              color: Theme.of(context).brightness == Brightness.dark
-                  ? AppTheme.darkPrimaryColor
-                  : AppTheme.primaryColor,
+      borderRadius: BorderRadius.circular(16),
+      child: SizedBox(
+        width: context.isMobile ? 120 : 140,
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            CircleAvatar(
+              radius: context.isMobile ? 16 : 20,
+              backgroundColor: isDark
+                  ? AppTheme.darkPrimaryColor.withOpacity(0.2)
+                  : AppTheme.primaryColorLight,
+              child: Icon(
+                Icons.medical_services_outlined,
+                size: context.isMobile ? 16 : 20,
+                color: isDark ? AppTheme.darkPrimaryColor : AppTheme.primaryColor,
+              ),
             ),
-          ),
-          const SizedBox(height: 8),
-          Text(
-            name,
-            textAlign: TextAlign.center,
-            maxLines: 2,
-            overflow: TextOverflow.ellipsis,
-            style: TextStyle(
-              fontWeight: FontWeight.w600,
-              fontSize: 11,
-              color: Theme.of(context).textTheme.bodyLarge?.color,
+            const SizedBox(height: 8),
+            AdaptiveText(
+              name,
+              style: TextStyle(
+                fontWeight: FontWeight.w600,
+                fontSize: 11,
+                color: isDark ? AppTheme.darkTextColorPrimary : AppTheme.textColorPrimary,
+              ),
+              textAlign: TextAlign.center,
+              maxLines: 2,
+              overflow: TextOverflow.ellipsis,
             ),
-          ),
-          const SizedBox(height: 2),
-          Text(
-            role,
-            textAlign: TextAlign.center,
-            maxLines: 1,
-            overflow: TextOverflow.ellipsis,
-            style: TextStyle(
-              fontSize: 9,
-              color: Theme.of(context).textTheme.bodyMedium?.color,
+            const SizedBox(height: 2),
+            AdaptiveText(
+              role,
+              style: TextStyle(
+                fontSize: 9,
+                color: isDark ? AppTheme.darkTextColorSecondary : AppTheme.textColorSecondary,
+              ),
+              textAlign: TextAlign.center,
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
             ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }

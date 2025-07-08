@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:vaciniciapp/routes/app_routes.dart';
 import 'package:vaciniciapp/theme/app_theme.dart';
+import 'package:vaciniciapp/widgets/responsive_widget.dart';
+import 'package:vaciniciapp/widgets/adaptive_card.dart';
 
 class OnboardingScreen extends StatefulWidget {
   const OnboardingScreen({super.key});
@@ -52,16 +54,18 @@ class _OnboardingScreenState extends State<OnboardingScreen>
 
   @override
   Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final primaryColor = isDark ? AppTheme.darkPrimaryColor : AppTheme.primaryColor;
+    
     return Scaffold(
       body: Container(
         decoration: BoxDecoration(
           gradient: LinearGradient(
             begin: Alignment.topLeft,
             end: Alignment.bottomRight,
-            colors: [
-              AppTheme.backgroundColor,
-              AppTheme.primaryColor.withOpacity(0.05),
-            ],
+            colors: isDark
+                ? [AppTheme.darkBackgroundColor, AppTheme.darkSurfaceColor]
+                : [AppTheme.backgroundColor, AppTheme.primaryColor.withOpacity(0.05)],
           ),
         ),
         child: SafeArea(
@@ -76,35 +80,24 @@ class _OnboardingScreenState extends State<OnboardingScreen>
                   opacity: _fadeAnimation,
                   child: Column(
                     children: [
-                      Container(
+                      GradientCard(
+                        gradientColors: [
+                          primaryColor.withOpacity(0.1),
+                          primaryColor.withOpacity(0.05),
+                        ],
+                        borderRadius: BorderRadius.circular(30),
                         padding: const EdgeInsets.all(24),
-                        decoration: BoxDecoration(
-                          gradient: LinearGradient(
-                            colors: [
-                              AppTheme.primaryColor.withOpacity(0.1),
-                              AppTheme.primaryColor.withOpacity(0.05),
-                            ],
-                          ),
-                          borderRadius: BorderRadius.circular(30),
-                          boxShadow: [
-                            BoxShadow(
-                              color: AppTheme.primaryColor.withOpacity(0.2),
-                              blurRadius: 20,
-                              offset: const Offset(0, 10),
-                            ),
-                          ],
-                        ),
-                        child: const Icon(
+                        child: Icon(
                           Icons.vaccines,
-                          size: 80,
-                          color: AppTheme.primaryColor,
+                          size: context.isMobile ? 80 : 100,
+                          color: primaryColor,
                         ),
                       ),
                       const SizedBox(height: 32),
-                      Text(
+                      AdaptiveText(
                         'Vacinici',
                         style: Theme.of(context).textTheme.displayMedium?.copyWith(
-                          color: AppTheme.primaryColor,
+                          color: primaryColor,
                           fontWeight: FontWeight.bold,
                           letterSpacing: -1,
                         ),
@@ -122,20 +115,20 @@ class _OnboardingScreenState extends State<OnboardingScreen>
                     opacity: _fadeAnimation,
                     child: Column(
                       children: [
-                        Text(
+                        AdaptiveText(
                           'Sua Saúde\nem Primeiro Lugar',
                           style: Theme.of(context).textTheme.headlineMedium?.copyWith(
                             fontWeight: FontWeight.bold,
                             height: 1.2,
-                            color: AppTheme.textColorPrimary,
+                            color: isDark ? AppTheme.darkTextColorPrimary : AppTheme.textColorPrimary,
                           ),
                           textAlign: TextAlign.center,
                         ),
                         const SizedBox(height: 20),
-                        Text(
+                        AdaptiveText(
                           'Gerencie sua carteira de vacinação de forma digital, segura e prática. Tenha todas as informações sempre à mão.',
                           style: Theme.of(context).textTheme.bodyLarge?.copyWith(
-                            color: AppTheme.textColorSecondary,
+                            color: isDark ? AppTheme.darkTextColorSecondary : AppTheme.textColorSecondary,
                             height: 1.5,
                           ),
                           textAlign: TextAlign.center,
@@ -157,12 +150,12 @@ class _OnboardingScreenState extends State<OnboardingScreen>
                       height: 56,
                       decoration: BoxDecoration(
                         gradient: LinearGradient(
-                          colors: [AppTheme.primaryColor, AppTheme.accentColor],
+                          colors: [primaryColor, primaryColor.withOpacity(0.8)],
                         ),
                         borderRadius: BorderRadius.circular(16),
                         boxShadow: [
                           BoxShadow(
-                            color: AppTheme.primaryColor.withOpacity(0.4),
+                            color: primaryColor.withOpacity(0.4),
                             blurRadius: 15,
                             offset: const Offset(0, 8),
                           ),

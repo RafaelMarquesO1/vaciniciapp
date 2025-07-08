@@ -3,6 +3,8 @@ import 'package:flutter/services.dart';
 import 'package:mask_text_input_formatter/mask_text_input_formatter.dart';
 import 'package:vaciniciapp/routes/app_routes.dart';
 import 'package:vaciniciapp/theme/app_theme.dart';
+import 'package:vaciniciapp/widgets/responsive_widget.dart';
+import 'package:vaciniciapp/widgets/adaptive_card.dart';
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
@@ -82,71 +84,71 @@ class _LoginScreenState extends State<LoginScreen> {
           ),
         ),
         child: SafeArea(
-          child: SingleChildScrollView(
-            padding: const EdgeInsets.all(24.0),
-            child: Form(
-              key: _formKey,
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.stretch,
-                children: [
+          child: ResponsiveBuilder(
+            builder: (context, constraints) {
+              final isWideScreen = constraints.maxWidth > AppTheme.mobileBreakpoint;
+              
+              return Center(
+                child: ConstrainedBox(
+                  constraints: BoxConstraints(
+                    maxWidth: isWideScreen ? 400 : double.infinity,
+                  ),
+                  child: SingleChildScrollView(
+                    padding: context.responsivePadding,
+                    child: Form(
+                      key: _formKey,
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.stretch,
+                        children: [
                   const SizedBox(height: 40),
                   
-                  // Header
-                  Column(
-                    children: [
-                      ShaderMask(
-                        shaderCallback: (bounds) => LinearGradient(
-                          colors: [primaryColor, primaryColor.withOpacity(0.8)],
-                        ).createShader(bounds),
-                        child: Text(
-                          'Vacinici',
-                          style: Theme.of(context).textTheme.displayMedium?.copyWith(
-                            color: Colors.white,
-                            fontWeight: FontWeight.bold,
+                          // Header
+                          Column(
+                            children: [
+                              ShaderMask(
+                                shaderCallback: (bounds) => LinearGradient(
+                                  colors: [primaryColor, primaryColor.withOpacity(0.8)],
+                                ).createShader(bounds),
+                                child: AdaptiveText(
+                                  'Vacinici',
+                                  style: Theme.of(context).textTheme.displayMedium?.copyWith(
+                                    color: Colors.white,
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                  textAlign: TextAlign.center,
+                                ),
+                              ),
+                              const SizedBox(height: 8),
+                              AdaptiveText(
+                                'Entre na sua conta',
+                                style: Theme.of(context).textTheme.bodyLarge?.copyWith(
+                                  color: isDark ? AppTheme.darkTextColorSecondary : AppTheme.textColorSecondary,
+                                ),
+                                textAlign: TextAlign.center,
+                              ),
+                            ],
                           ),
-                        ),
-                      ),
-                      const SizedBox(height: 8),
-                      Text(
-                        'Entre na sua conta',
-                        style: Theme.of(context).textTheme.bodyLarge?.copyWith(
-                          color: Theme.of(context).textTheme.bodyMedium?.color,
-                        ),
-                      ),
-                    ],
-                  ),
                   
                   const SizedBox(height: 60),
                   
-                  // Ilustração (Ícone de vacina)
-                  Container(
-                    height: 120,
-                    margin: const EdgeInsets.only(bottom: 40),
-                    child: Container(
-                      padding: const EdgeInsets.all(24),
-                      decoration: BoxDecoration(
-                        gradient: LinearGradient(
-                          colors: [
-                            primaryColor.withOpacity(0.15),
-                            primaryColor.withOpacity(0.05),
-                          ],
-                        ),
-                        borderRadius: BorderRadius.circular(35),
-                        boxShadow: [
-                          BoxShadow(
-                            color: primaryColor.withOpacity(0.2),
-                            blurRadius: 20,
-                            offset: const Offset(0, 10),
+                          // Ilustração (Ícone de vacina)
+                          Container(
+                            height: context.isMobile ? 120 : 140,
+                            margin: const EdgeInsets.only(bottom: 40),
+                            child: GradientCard(
+                              gradientColors: [
+                                primaryColor.withOpacity(0.15),
+                                primaryColor.withOpacity(0.05),
+                              ],
+                              borderRadius: BorderRadius.circular(35),
+                              padding: const EdgeInsets.all(24),
+                              child: Icon(
+                                Icons.vaccines,
+                                size: context.isMobile ? 72 : 84,
+                                color: primaryColor,
+                              ),
+                            ),
                           ),
-                        ],
-                      ),
-                      child: Icon(
-                        Icons.vaccines,
-                        size: 72,
-                        color: primaryColor,
-                      ),
-                    ),
-                  ),
                 
                 // Campo CPF
                 TextFormField(
@@ -273,9 +275,13 @@ class _LoginScreenState extends State<LoginScreen> {
                     ),
                   ],
                 ),
-                ],
-              ),
-            ),
+                        ],
+                      ),
+                    ),
+                  ),
+                ),
+              );
+            },
           ),
         ),
       ),

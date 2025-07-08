@@ -1,23 +1,33 @@
 import 'package:flutter/material.dart';
 import 'package:vaciniciapp/theme/app_theme.dart';
+import 'package:vaciniciapp/widgets/adaptive_card.dart';
+import 'package:vaciniciapp/widgets/responsive_widget.dart';
 
 class StatisticsScreen extends StatelessWidget {
   const StatisticsScreen({super.key});
 
   @override
   Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    
     return Scaffold(
+      backgroundColor: isDark ? AppTheme.darkBackgroundColor : AppTheme.backgroundColor,
       appBar: AppBar(
         title: const Text('Estatísticas'),
         backgroundColor: Colors.transparent,
         elevation: 0,
       ),
       body: SingleChildScrollView(
-        padding: const EdgeInsets.all(20),
+        padding: context.responsivePadding,
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text('Vacinômetro', style: Theme.of(context).textTheme.headlineSmall),
+            AdaptiveText(
+              'Vacinômetro', 
+              style: Theme.of(context).textTheme.headlineSmall?.copyWith(
+                color: isDark ? AppTheme.darkTextColorPrimary : AppTheme.textColorPrimary,
+              ),
+            ),
             const SizedBox(height: 20),
             _StatCard(
               title: 'Vacinas Aplicadas',
@@ -43,7 +53,12 @@ class StatisticsScreen extends StatelessWidget {
               color: Colors.green,
             ),
             const SizedBox(height: 24),
-            Text('Vacinas por Categoria', style: Theme.of(context).textTheme.titleLarge),
+            AdaptiveText(
+              'Vacinas por Categoria', 
+              style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                color: isDark ? AppTheme.darkTextColorPrimary : AppTheme.textColorPrimary,
+              ),
+            ),
             const SizedBox(height: 16),
             _CategoryItem('COVID-19', 2, AppTheme.primaryColor),
             _CategoryItem('Gripe', 1, Colors.blue),
@@ -72,13 +87,11 @@ class _StatCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      padding: const EdgeInsets.all(20),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(16),
-        boxShadow: AppTheme.cardShadow,
-      ),
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    
+    return AdaptiveCard(
+      margin: EdgeInsets.zero,
+      borderRadius: BorderRadius.circular(16),
       child: Row(
         children: [
           Container(
@@ -94,9 +107,22 @@ class _StatCard extends StatelessWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(title, style: Theme.of(context).textTheme.bodyMedium),
-                Text(value, style: Theme.of(context).textTheme.headlineSmall?.copyWith(color: color)),
-                Text(subtitle, style: Theme.of(context).textTheme.bodySmall),
+                AdaptiveText(
+                  title, 
+                  style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                    color: isDark ? AppTheme.darkTextColorPrimary : AppTheme.textColorPrimary,
+                  ),
+                ),
+                AdaptiveText(
+                  value, 
+                  style: Theme.of(context).textTheme.headlineSmall?.copyWith(color: color),
+                ),
+                AdaptiveText(
+                  subtitle, 
+                  style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                    color: isDark ? AppTheme.darkTextColorSecondary : AppTheme.textColorSecondary,
+                  ),
+                ),
               ],
             ),
           ),
@@ -115,14 +141,12 @@ class _CategoryItem extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    
+    return AdaptiveCard(
       margin: const EdgeInsets.only(bottom: 12),
-      padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: AppTheme.primaryColorLight),
-      ),
+      borderRadius: BorderRadius.circular(12),
+      showBorder: true,
       child: Row(
         children: [
           Container(
@@ -134,8 +158,18 @@ class _CategoryItem extends StatelessWidget {
             ),
           ),
           const SizedBox(width: 16),
-          Expanded(child: Text(name)),
-          Text('$count doses', style: TextStyle(color: color, fontWeight: FontWeight.w600)),
+          Expanded(
+            child: AdaptiveText(
+              name,
+              style: TextStyle(
+                color: isDark ? AppTheme.darkTextColorPrimary : AppTheme.textColorPrimary,
+              ),
+            ),
+          ),
+          AdaptiveText(
+            '$count doses', 
+            style: TextStyle(color: color, fontWeight: FontWeight.w600),
+          ),
         ],
       ),
     );

@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:vaciniciapp/theme/app_theme.dart';
+import 'package:vaciniciapp/widgets/responsive_widget.dart';
+import 'package:vaciniciapp/widgets/adaptive_card.dart';
 
 class ScheduleScreen extends StatefulWidget {
   const ScheduleScreen({super.key});
@@ -48,7 +50,7 @@ class _ScheduleScreenState extends State<ScheduleScreen> {
               ),
             ],
           ),
-          backgroundColor: Colors.green,
+          backgroundColor: Theme.of(context).brightness == Brightness.dark ? AppTheme.darkPrimaryColor : Colors.green,
           behavior: SnackBarBehavior.floating,
           shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
         ),
@@ -60,6 +62,9 @@ class _ScheduleScreenState extends State<ScheduleScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final primaryColor = isDark ? AppTheme.darkPrimaryColor : AppTheme.primaryColor;
+    
     return Scaffold(
       appBar: AppBar(
         title: const Text('Agendar Vacina'),
@@ -68,49 +73,42 @@ class _ScheduleScreenState extends State<ScheduleScreen> {
         centerTitle: true,
       ),
       body: SingleChildScrollView(
-        padding: const EdgeInsets.all(20),
+        padding: context.responsivePadding,
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Container(
-              padding: const EdgeInsets.all(20),
-              decoration: BoxDecoration(
-                gradient: LinearGradient(
-                  colors: [
-                    AppTheme.primaryColor.withOpacity(0.1),
-                    AppTheme.primaryColor.withOpacity(0.05),
-                  ],
-                ),
-                borderRadius: BorderRadius.circular(20),
-                border: Border.all(color: AppTheme.primaryColor.withOpacity(0.2)),
-              ),
+            GradientCard(
+              gradientColors: [
+                primaryColor.withOpacity(0.1),
+                primaryColor.withOpacity(0.05),
+              ],
               child: Row(
                 children: [
                   Container(
                     padding: const EdgeInsets.all(8),
                     decoration: BoxDecoration(
-                      color: AppTheme.primaryColor.withOpacity(0.2),
+                      color: primaryColor.withOpacity(0.2),
                       borderRadius: BorderRadius.circular(12),
                     ),
-                    child: const Icon(Icons.schedule, color: AppTheme.primaryColor, size: 20),
+                    child: Icon(Icons.schedule, color: primaryColor, size: 20),
                   ),
                   const SizedBox(width: 16),
                   Expanded(
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Text(
+                        AdaptiveText(
                           'Agendamento Rápido',
                           style: Theme.of(context).textTheme.titleSmall?.copyWith(
-                            color: AppTheme.primaryColor,
+                            color: primaryColor,
                             fontWeight: FontWeight.bold,
                           ),
                         ),
                         const SizedBox(height: 4),
-                        Text(
+                        AdaptiveText(
                           'Escolha a vacina, local e horário ideal para você',
                           style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                            color: AppTheme.primaryColor.withOpacity(0.8),
+                            color: primaryColor.withOpacity(0.8),
                           ),
                         ),
                       ],
@@ -120,9 +118,13 @@ class _ScheduleScreenState extends State<ScheduleScreen> {
               ),
             ),
             const SizedBox(height: 32),
-            Text('Tipo de Vacina', style: Theme.of(context).textTheme.titleMedium?.copyWith(
-              fontWeight: FontWeight.bold,
-            )),
+            AdaptiveText(
+              'Tipo de Vacina', 
+              style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                fontWeight: FontWeight.bold,
+                color: isDark ? AppTheme.darkTextColorPrimary : AppTheme.textColorPrimary,
+              ),
+            ),
             const SizedBox(height: 16),
             SizedBox(
               height: 80,
@@ -139,19 +141,25 @@ class _ScheduleScreenState extends State<ScheduleScreen> {
                       margin: const EdgeInsets.only(right: 12),
                       padding: const EdgeInsets.all(12),
                       decoration: BoxDecoration(
-                        color: isSelected ? AppTheme.primaryColor : Colors.white,
+                        color: isSelected 
+                            ? primaryColor 
+                            : (isDark ? AppTheme.darkCardColor : Colors.white),
                         borderRadius: BorderRadius.circular(16),
                         border: Border.all(
-                          color: isSelected ? AppTheme.primaryColor : AppTheme.primaryColorLight,
+                          color: isSelected 
+                              ? primaryColor 
+                              : (isDark ? AppTheme.darkTextColorTertiary : AppTheme.primaryColorLight),
                           width: 2,
                         ),
-                        boxShadow: isSelected ? [
+                        boxShadow: [
                           BoxShadow(
-                            color: AppTheme.primaryColor.withOpacity(0.3),
+                            color: isSelected
+                                ? primaryColor.withOpacity(0.3)
+                                : (isDark ? Colors.black.withOpacity(0.3) : AppTheme.primaryColor.withOpacity(0.1)),
                             blurRadius: 8,
                             offset: const Offset(0, 4),
                           ),
-                        ] : null,
+                        ],
                       ),
                       child: Column(
                         mainAxisAlignment: MainAxisAlignment.center,
@@ -162,10 +170,12 @@ class _ScheduleScreenState extends State<ScheduleScreen> {
                             size: 24,
                           ),
                           const SizedBox(height: 8),
-                          Text(
+                          AdaptiveText(
                             vaccine['name'],
                             style: TextStyle(
-                              color: isSelected ? Colors.white : AppTheme.textColorPrimary,
+                              color: isSelected 
+                                  ? Colors.white 
+                                  : (isDark ? AppTheme.darkTextColorPrimary : AppTheme.textColorPrimary),
                               fontWeight: FontWeight.w600,
                               fontSize: 12,
                             ),
@@ -179,9 +189,13 @@ class _ScheduleScreenState extends State<ScheduleScreen> {
               ),
             ),
             const SizedBox(height: 24),
-            Text('Local de Atendimento', style: Theme.of(context).textTheme.titleMedium?.copyWith(
-              fontWeight: FontWeight.bold,
-            )),
+            AdaptiveText(
+              'Local de Atendimento', 
+              style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                fontWeight: FontWeight.bold,
+                color: isDark ? AppTheme.darkTextColorPrimary : AppTheme.textColorPrimary,
+              ),
+            ),
             const SizedBox(height: 16),
             ...locations.map((location) {
               final isSelected = location['name'] == selectedLocation;
@@ -191,24 +205,41 @@ class _ScheduleScreenState extends State<ScheduleScreen> {
                   margin: const EdgeInsets.only(bottom: 12),
                   padding: const EdgeInsets.all(16),
                   decoration: BoxDecoration(
-                    color: isSelected ? AppTheme.primaryColor.withOpacity(0.1) : Colors.white,
+                    color: isSelected 
+                        ? primaryColor.withOpacity(0.1) 
+                        : (isDark ? AppTheme.darkCardColor : Colors.white),
                     borderRadius: BorderRadius.circular(16),
                     border: Border.all(
-                      color: isSelected ? AppTheme.primaryColor : AppTheme.primaryColorLight,
+                      color: isSelected 
+                          ? primaryColor 
+                          : (isDark ? AppTheme.darkTextColorTertiary : AppTheme.primaryColorLight),
                       width: isSelected ? 2 : 1,
                     ),
+                    boxShadow: [
+                      BoxShadow(
+                        color: isDark 
+                            ? Colors.black.withOpacity(0.3)
+                            : AppTheme.primaryColor.withOpacity(0.1),
+                        blurRadius: 8,
+                        offset: const Offset(0, 2),
+                      ),
+                    ],
                   ),
                   child: Row(
                     children: [
                       Container(
                         padding: const EdgeInsets.all(8),
                         decoration: BoxDecoration(
-                          color: isSelected ? AppTheme.primaryColor : AppTheme.primaryColorLight,
+                          color: isSelected 
+                              ? primaryColor 
+                              : (isDark ? AppTheme.darkPrimaryColor.withOpacity(0.2) : AppTheme.primaryColorLight),
                           borderRadius: BorderRadius.circular(12),
                         ),
                         child: Icon(
                           Icons.location_on,
-                          color: isSelected ? Colors.white : AppTheme.primaryColor,
+                          color: isSelected 
+                              ? Colors.white 
+                              : (isDark ? AppTheme.darkPrimaryColor : AppTheme.primaryColor),
                           size: 20,
                         ),
                       ),
@@ -217,18 +248,20 @@ class _ScheduleScreenState extends State<ScheduleScreen> {
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            Text(
+                            AdaptiveText(
                               location['name'],
                               style: TextStyle(
                                 fontWeight: FontWeight.bold,
-                                color: isSelected ? AppTheme.primaryColor : AppTheme.textColorPrimary,
+                                color: isSelected 
+                                    ? primaryColor 
+                                    : (isDark ? AppTheme.darkTextColorPrimary : AppTheme.textColorPrimary),
                               ),
                             ),
                             const SizedBox(height: 4),
-                            Text(
+                            AdaptiveText(
                               location['address'],
-                              style: const TextStyle(
-                                color: AppTheme.textColorSecondary,
+                              style: TextStyle(
+                                color: isDark ? AppTheme.darkTextColorSecondary : AppTheme.textColorSecondary,
                                 fontSize: 12,
                               ),
                             ),
@@ -262,9 +295,13 @@ class _ScheduleScreenState extends State<ScheduleScreen> {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Text('Data', style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                        fontWeight: FontWeight.bold,
-                      )),
+                      AdaptiveText(
+                        'Data', 
+                        style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                          fontWeight: FontWeight.bold,
+                          color: isDark ? AppTheme.darkTextColorPrimary : AppTheme.textColorPrimary,
+                        ),
+                      ),
                       const SizedBox(height: 12),
                       GestureDetector(
                         onTap: () async {
@@ -280,13 +317,19 @@ class _ScheduleScreenState extends State<ScheduleScreen> {
                           padding: const EdgeInsets.all(16),
                           decoration: BoxDecoration(
                             gradient: LinearGradient(
-                              colors: [Colors.white, AppTheme.primaryColor.withOpacity(0.02)],
+                              colors: isDark
+                                  ? [AppTheme.darkCardColor, AppTheme.darkSurfaceColor]
+                                  : [Colors.white, AppTheme.primaryColor.withOpacity(0.02)],
                             ),
                             borderRadius: BorderRadius.circular(16),
-                            border: Border.all(color: AppTheme.primaryColorLight),
+                            border: Border.all(
+                              color: isDark ? AppTheme.darkTextColorTertiary : AppTheme.primaryColorLight,
+                            ),
                             boxShadow: [
                               BoxShadow(
-                                color: AppTheme.primaryColor.withOpacity(0.1),
+                                color: isDark
+                                    ? Colors.black.withOpacity(0.3)
+                                    : AppTheme.primaryColor.withOpacity(0.1),
                                 blurRadius: 8,
                                 offset: const Offset(0, 2),
                               ),
@@ -294,19 +337,20 @@ class _ScheduleScreenState extends State<ScheduleScreen> {
                           ),
                           child: Column(
                             children: [
-                              const Icon(Icons.calendar_today, color: AppTheme.primaryColor, size: 24),
+                              Icon(Icons.calendar_today, color: primaryColor, size: 24),
                               const SizedBox(height: 8),
-                              Text(
+                              AdaptiveText(
                                 DateFormat('dd/MM', 'pt_BR').format(selectedDate),
-                                style: const TextStyle(
+                                style: TextStyle(
                                   fontWeight: FontWeight.bold,
                                   fontSize: 16,
+                                  color: isDark ? AppTheme.darkTextColorPrimary : AppTheme.textColorPrimary,
                                 ),
                               ),
-                              Text(
+                              AdaptiveText(
                                 DateFormat('yyyy', 'pt_BR').format(selectedDate),
-                                style: const TextStyle(
-                                  color: AppTheme.textColorSecondary,
+                                style: TextStyle(
+                                  color: isDark ? AppTheme.darkTextColorSecondary : AppTheme.textColorSecondary,
                                   fontSize: 12,
                                 ),
                               ),
@@ -322,9 +366,13 @@ class _ScheduleScreenState extends State<ScheduleScreen> {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Text('Horário', style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                        fontWeight: FontWeight.bold,
-                      )),
+                      AdaptiveText(
+                        'Horário', 
+                        style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                          fontWeight: FontWeight.bold,
+                          color: isDark ? AppTheme.darkTextColorPrimary : AppTheme.textColorPrimary,
+                        ),
+                      ),
                       const SizedBox(height: 12),
                       GestureDetector(
                         onTap: () async {
@@ -338,13 +386,19 @@ class _ScheduleScreenState extends State<ScheduleScreen> {
                           padding: const EdgeInsets.all(16),
                           decoration: BoxDecoration(
                             gradient: LinearGradient(
-                              colors: [Colors.white, AppTheme.primaryColor.withOpacity(0.02)],
+                              colors: isDark
+                                  ? [AppTheme.darkCardColor, AppTheme.darkSurfaceColor]
+                                  : [Colors.white, AppTheme.primaryColor.withOpacity(0.02)],
                             ),
                             borderRadius: BorderRadius.circular(16),
-                            border: Border.all(color: AppTheme.primaryColorLight),
+                            border: Border.all(
+                              color: isDark ? AppTheme.darkTextColorTertiary : AppTheme.primaryColorLight,
+                            ),
                             boxShadow: [
                               BoxShadow(
-                                color: AppTheme.primaryColor.withOpacity(0.1),
+                                color: isDark
+                                    ? Colors.black.withOpacity(0.3)
+                                    : AppTheme.primaryColor.withOpacity(0.1),
                                 blurRadius: 8,
                                 offset: const Offset(0, 2),
                               ),
@@ -352,19 +406,20 @@ class _ScheduleScreenState extends State<ScheduleScreen> {
                           ),
                           child: Column(
                             children: [
-                              const Icon(Icons.access_time, color: AppTheme.primaryColor, size: 24),
+                              Icon(Icons.access_time, color: primaryColor, size: 24),
                               const SizedBox(height: 8),
-                              Text(
+                              AdaptiveText(
                                 selectedTime.format(context),
-                                style: const TextStyle(
+                                style: TextStyle(
                                   fontWeight: FontWeight.bold,
                                   fontSize: 16,
+                                  color: isDark ? AppTheme.darkTextColorPrimary : AppTheme.textColorPrimary,
                                 ),
                               ),
-                              const Text(
+                              AdaptiveText(
                                 'Toque para alterar',
                                 style: TextStyle(
-                                  color: AppTheme.textColorSecondary,
+                                  color: isDark ? AppTheme.darkTextColorSecondary : AppTheme.textColorSecondary,
                                   fontSize: 12,
                                 ),
                               ),
@@ -383,12 +438,12 @@ class _ScheduleScreenState extends State<ScheduleScreen> {
               height: 56,
               decoration: BoxDecoration(
                 gradient: LinearGradient(
-                  colors: [AppTheme.primaryColor, AppTheme.accentColor],
+                  colors: [primaryColor, primaryColor.withOpacity(0.8)],
                 ),
                 borderRadius: BorderRadius.circular(16),
                 boxShadow: [
                   BoxShadow(
-                    color: AppTheme.primaryColor.withOpacity(0.4),
+                    color: primaryColor.withOpacity(0.4),
                     blurRadius: 15,
                     offset: const Offset(0, 8),
                   ),

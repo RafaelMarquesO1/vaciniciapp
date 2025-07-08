@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:vaciniciapp/theme/app_theme.dart';
+import 'package:vaciniciapp/widgets/responsive_widget.dart';
+import 'package:vaciniciapp/widgets/adaptive_card.dart';
 
 class ForgotPasswordScreen extends StatefulWidget {
   const ForgotPasswordScreen({super.key});
@@ -45,6 +47,7 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
   }
 
   Future<void> _sendCode() async {
+    final isDark = Theme.of(context).brightness == Brightness.dark; // Adicione esta linha
     if (!_formKey.currentState!.validate()) return;
     setState(() => _isLoading = true);
     await Future.delayed(const Duration(seconds: 1));
@@ -53,9 +56,9 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
       _codeSent = true;
     });
     ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(
-        content: Text('Código enviado por SMS'),
-        backgroundColor: AppTheme.primaryColor,
+      SnackBar(
+        content: const Text('Código enviado por SMS'),
+        backgroundColor: isDark ? AppTheme.darkPrimaryColor : AppTheme.primaryColor,
       ),
     );
   }
@@ -77,10 +80,23 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final primaryColor = isDark ? AppTheme.darkPrimaryColor : AppTheme.primaryColor;
+    
     return Scaffold(
-      body: SafeArea(
-        child: SingleChildScrollView(
-          padding: const EdgeInsets.all(24.0),
+      body: Container(
+        decoration: BoxDecoration(
+          gradient: LinearGradient(
+            begin: Alignment.topLeft,
+            end: Alignment.bottomRight,
+            colors: isDark 
+                ? [AppTheme.darkBackgroundColor, AppTheme.darkSurfaceColor]
+                : [AppTheme.backgroundColor, Colors.white],
+          ),
+        ),
+        child: SafeArea(
+          child: SingleChildScrollView(
+            padding: context.responsivePadding,
           child: Form(
             key: _formKey,
             child: Column(
@@ -91,22 +107,32 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
                   children: [
                     IconButton(
                       onPressed: () => Navigator.pop(context),
-                      icon: const Icon(Icons.arrow_back),
+                      icon: Icon(
+                        Icons.arrow_back,
+                        color: isDark ? AppTheme.darkTextColorPrimary : AppTheme.textColorPrimary,
+                      ),
                     ),
                     const SizedBox(width: 8),
-                    Text('Recuperar Senha', style: Theme.of(context).textTheme.headlineSmall),
+                    AdaptiveText(
+                      'Recuperar Senha', 
+                      style: Theme.of(context).textTheme.headlineSmall?.copyWith(
+                        color: isDark ? AppTheme.darkTextColorPrimary : AppTheme.textColorPrimary,
+                      ),
+                    ),
                   ],
                 ),
                 const SizedBox(height: 40),
                 Icon(
                   Icons.lock_reset,
                   size: 80,
-                  color: AppTheme.primaryColor,
+                  color: primaryColor,
                 ),
                 const SizedBox(height: 24),
-                Text(
+                AdaptiveText(
                   _codeSent ? 'Digite o código recebido' : 'Digite seu CPF para receber o código',
-                  style: Theme.of(context).textTheme.bodyLarge,
+                  style: Theme.of(context).textTheme.bodyLarge?.copyWith(
+                    color: isDark ? AppTheme.darkTextColorPrimary : AppTheme.textColorPrimary,
+                  ),
                   textAlign: TextAlign.center,
                 ),
                 const SizedBox(height: 32),
@@ -183,6 +209,7 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
           ),
         ),
       ),
+    ),
     );
   }
 }

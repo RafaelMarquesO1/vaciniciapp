@@ -7,22 +7,67 @@ class AppTheme {
   static const Color primaryColorLight = Color(0xFFE8F5E8);
   static const Color accentColor = Color(0xFF4CAF50);
   static const Color backgroundColor = Color(0xFFF8F9FA);
+  static const Color surfaceColor = Color(0xFFFFFFFF);
+  static const Color cardColor = Color(0xFFFFFFFF);
   
   // Cores de texto - Tema Claro
   static const Color textColorPrimary = Color(0xFF212121);
   static const Color textColorSecondary = Color(0xFF757575);
+  static const Color textColorTertiary = Color(0xFF9E9E9E);
   
   // Cores principais - Tema Escuro
   static const Color darkPrimaryColor = Color(0xFF4CAF50);
   static const Color darkBackgroundColor = Color(0xFF121212);
   static const Color darkSurfaceColor = Color(0xFF1E1E1E);
   static const Color darkCardColor = Color(0xFF2D2D2D);
+  static const Color darkElevatedColor = Color(0xFF2E2E2E);
+  
+  // Cores de texto - Tema Escuro
+  static const Color darkTextColorPrimary = Color(0xFFFFFFFF);
+  static const Color darkTextColorSecondary = Color(0xFFB0B0B0);
+  static const Color darkTextColorTertiary = Color(0xFF808080);
   
   // Cores adicionais
   static const Color successColor = Color(0xFF4CAF50);
   static const Color errorColor = Color(0xFFF44336);
   static const Color warningColor = Color(0xFFFF9800);
   static const Color infoColor = Color(0xFF2196F3);
+  
+  // Breakpoints para responsividade
+  static const double mobileBreakpoint = 600;
+  static const double tabletBreakpoint = 900;
+  static const double desktopBreakpoint = 1200;
+  
+  // Função para obter padding responsivo
+  static EdgeInsets getResponsivePadding(BuildContext context) {
+    final width = MediaQuery.of(context).size.width;
+    if (width < mobileBreakpoint) {
+      return const EdgeInsets.all(16);
+    } else if (width < tabletBreakpoint) {
+      return const EdgeInsets.all(24);
+    } else {
+      return const EdgeInsets.all(32);
+    }
+  }
+  
+  // Função para obter número de colunas responsivo
+  static int getResponsiveColumns(BuildContext context) {
+    final width = MediaQuery.of(context).size.width;
+    if (width < mobileBreakpoint) {
+      return 2;
+    } else if (width < tabletBreakpoint) {
+      return 3;
+    } else {
+      return 4;
+    }
+  }
+  
+  // Função para obter tamanho de fonte responsivo
+  static double getResponsiveFontSize(BuildContext context, double baseFontSize) {
+    final width = MediaQuery.of(context).size.width;
+    final scaleFactor = width < mobileBreakpoint ? 0.9 : width < tabletBreakpoint ? 1.0 : 1.1;
+    return baseFontSize * scaleFactor;
+  }
 
   static final ThemeData lightTheme = ThemeData(
     useMaterial3: true,
@@ -34,9 +79,14 @@ class AppTheme {
       brightness: Brightness.light,
       primary: primaryColor,
       secondary: accentColor,
-      surface: Colors.white,
+      surface: surfaceColor,
       background: backgroundColor,
       error: errorColor,
+      onPrimary: Colors.white,
+      onSecondary: Colors.white,
+      onSurface: textColorPrimary,
+      onBackground: textColorPrimary,
+      onError: Colors.white,
     ),
     
     // Tipografia
@@ -148,7 +198,7 @@ class AppTheme {
     ),
     
     // Cards
-    cardTheme: CardTheme(
+    cardTheme: CardThemeData(
       color: Colors.white,
       elevation: 4,
       shadowColor: Colors.black.withOpacity(0.1),
@@ -190,24 +240,29 @@ class AppTheme {
       surface: darkSurfaceColor,
       background: darkBackgroundColor,
       error: errorColor,
+      onPrimary: darkBackgroundColor,
+      onSecondary: darkBackgroundColor,
+      onSurface: darkTextColorPrimary,
+      onBackground: darkTextColorPrimary,
+      onError: darkBackgroundColor,
     ),
     
     // Tipografia
     textTheme: GoogleFonts.poppinsTextTheme(
       const TextTheme(
-        displayLarge: TextStyle(fontSize: 36, fontWeight: FontWeight.bold, color: Colors.white, height: 1.2),
-        displayMedium: TextStyle(fontSize: 28, fontWeight: FontWeight.bold, color: Colors.white, height: 1.3),
-        displaySmall: TextStyle(fontSize: 24, fontWeight: FontWeight.bold, color: Colors.white, height: 1.3),
-        headlineSmall: TextStyle(fontSize: 22, fontWeight: FontWeight.bold, color: Colors.white, height: 1.4),
-        titleLarge: TextStyle(fontSize: 20, fontWeight: FontWeight.w600, color: Colors.white, height: 1.4),
-        titleMedium: TextStyle(fontSize: 18, fontWeight: FontWeight.w600, color: Colors.white, height: 1.4),
-        titleSmall: TextStyle(fontSize: 16, fontWeight: FontWeight.w600, color: Colors.white, height: 1.4),
-        bodyLarge: TextStyle(fontSize: 16, color: Colors.white, height: 1.5),
-        bodyMedium: TextStyle(fontSize: 14, color: Colors.grey, height: 1.5),
-        bodySmall: TextStyle(fontSize: 12, color: Colors.grey, height: 1.4),
-        labelLarge: TextStyle(fontSize: 14, fontWeight: FontWeight.w600, color: Colors.white),
-        labelMedium: TextStyle(fontSize: 12, fontWeight: FontWeight.w500, color: Colors.grey),
-        labelSmall: TextStyle(fontSize: 10, fontWeight: FontWeight.w500, color: Colors.grey),
+        displayLarge: TextStyle(fontSize: 36, fontWeight: FontWeight.bold, color: darkTextColorPrimary, height: 1.2),
+        displayMedium: TextStyle(fontSize: 28, fontWeight: FontWeight.bold, color: darkTextColorPrimary, height: 1.3),
+        displaySmall: TextStyle(fontSize: 24, fontWeight: FontWeight.bold, color: darkTextColorPrimary, height: 1.3),
+        headlineSmall: TextStyle(fontSize: 22, fontWeight: FontWeight.bold, color: darkTextColorPrimary, height: 1.4),
+        titleLarge: TextStyle(fontSize: 20, fontWeight: FontWeight.w600, color: darkTextColorPrimary, height: 1.4),
+        titleMedium: TextStyle(fontSize: 18, fontWeight: FontWeight.w600, color: darkTextColorPrimary, height: 1.4),
+        titleSmall: TextStyle(fontSize: 16, fontWeight: FontWeight.w600, color: darkTextColorPrimary, height: 1.4),
+        bodyLarge: TextStyle(fontSize: 16, color: darkTextColorPrimary, height: 1.5),
+        bodyMedium: TextStyle(fontSize: 14, color: darkTextColorSecondary, height: 1.5),
+        bodySmall: TextStyle(fontSize: 12, color: darkTextColorSecondary, height: 1.4),
+        labelLarge: TextStyle(fontSize: 14, fontWeight: FontWeight.w600, color: darkTextColorPrimary),
+        labelMedium: TextStyle(fontSize: 12, fontWeight: FontWeight.w500, color: darkTextColorSecondary),
+        labelSmall: TextStyle(fontSize: 10, fontWeight: FontWeight.w500, color: darkTextColorTertiary),
       ),
     ),
     
@@ -260,15 +315,15 @@ class AppTheme {
     // Campos de entrada
     inputDecorationTheme: InputDecorationTheme(
       filled: true,
-      fillColor: darkCardColor,
+      fillColor: darkElevatedColor,
       contentPadding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
       border: OutlineInputBorder(
         borderRadius: BorderRadius.circular(16),
-        borderSide: BorderSide(color: Colors.grey.shade600),
+        borderSide: BorderSide(color: darkTextColorTertiary.withOpacity(0.3)),
       ),
       enabledBorder: OutlineInputBorder(
         borderRadius: BorderRadius.circular(16),
-        borderSide: BorderSide(color: Colors.grey.shade600),
+        borderSide: BorderSide(color: darkTextColorTertiary.withOpacity(0.3)),
       ),
       focusedBorder: OutlineInputBorder(
         borderRadius: BorderRadius.circular(16),
@@ -282,8 +337,8 @@ class AppTheme {
         borderRadius: BorderRadius.circular(16),
         borderSide: const BorderSide(color: errorColor, width: 2),
       ),
-      hintStyle: TextStyle(color: Colors.grey.shade500),
-      labelStyle: TextStyle(color: Colors.grey.shade400),
+      hintStyle: const TextStyle(color: darkTextColorTertiary),
+      labelStyle: const TextStyle(color: darkTextColorSecondary),
       floatingLabelStyle: const TextStyle(color: darkPrimaryColor),
     ),
     
@@ -292,19 +347,21 @@ class AppTheme {
       backgroundColor: Colors.transparent,
       elevation: 0,
       scrolledUnderElevation: 0,
-      foregroundColor: Colors.white,
+      foregroundColor: darkTextColorPrimary,
       titleTextStyle: TextStyle(
-        color: Colors.white,
+        color: darkTextColorPrimary,
         fontSize: 20,
         fontWeight: FontWeight.bold,
       ),
+      iconTheme: IconThemeData(color: darkTextColorPrimary),
+      actionsIconTheme: IconThemeData(color: darkTextColorPrimary),
     ),
     
     // Cards
-    cardTheme: CardTheme(
+    cardTheme: CardThemeData(
       color: darkCardColor,
       elevation: 8,
-      shadowColor: Colors.black.withOpacity(0.3),
+      shadowColor: Colors.black.withOpacity(0.4),
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(20),
       ),
@@ -312,8 +369,8 @@ class AppTheme {
     ),
     
     // Dividers
-    dividerTheme: DividerThemeData(
-      color: Colors.grey.shade700,
+    dividerTheme: const DividerThemeData(
+      color: darkTextColorTertiary,
       thickness: 1,
       space: 1,
     ),

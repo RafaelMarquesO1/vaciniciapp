@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:vaciniciapp/data/mock_data.dart';
 import 'package:vaciniciapp/theme/app_theme.dart';
+import 'package:vaciniciapp/widgets/adaptive_card.dart';
+import 'package:vaciniciapp/widgets/responsive_widget.dart';
 
 class EditProfileScreen extends StatefulWidget {
   const EditProfileScreen({super.key});
@@ -52,11 +54,12 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
     setState(() => _isLoading = true);
     await Future.delayed(const Duration(seconds: 1));
     if (mounted) {
+      final isDark = Theme.of(context).brightness == Brightness.dark;
       Navigator.pop(context);
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('Perfil atualizado com sucesso!'),
-          backgroundColor: AppTheme.primaryColor,
+        SnackBar(
+          content: const Text('Perfil atualizado com sucesso!'),
+          backgroundColor: isDark ? AppTheme.darkPrimaryColor : AppTheme.primaryColor,
         ),
       );
     }
@@ -64,7 +67,11 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final primaryColor = isDark ? AppTheme.darkPrimaryColor : AppTheme.primaryColor;
+    
     return Scaffold(
+      backgroundColor: isDark ? AppTheme.darkBackgroundColor : AppTheme.backgroundColor,
       appBar: AppBar(
         title: const Text('Editar Perfil'),
         backgroundColor: Colors.transparent,
@@ -75,7 +82,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
             child: Text(
               'Salvar',
               style: TextStyle(
-                color: AppTheme.primaryColor,
+                color: primaryColor,
                 fontWeight: FontWeight.w600,
               ),
             ),
@@ -83,7 +90,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
         ],
       ),
       body: SingleChildScrollView(
-        padding: const EdgeInsets.all(20),
+        padding: context.responsivePadding,
         child: Form(
           key: _formKey,
           child: Column(
@@ -94,13 +101,13 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                   Container(
                     padding: const EdgeInsets.all(24),
                     decoration: BoxDecoration(
-                      color: AppTheme.primaryColorLight,
+                      color: isDark ? AppTheme.darkPrimaryColor.withOpacity(0.2) : AppTheme.primaryColorLight,
                       borderRadius: BorderRadius.circular(60),
                     ),
-                    child: const Icon(
+                    child: Icon(
                       Icons.person,
                       size: 60,
-                      color: AppTheme.primaryColor,
+                      color: primaryColor,
                     ),
                   ),
                   Positioned(
@@ -109,7 +116,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                     child: Container(
                       padding: const EdgeInsets.all(8),
                       decoration: BoxDecoration(
-                        color: AppTheme.primaryColor,
+                        color: primaryColor,
                         borderRadius: BorderRadius.circular(20),
                       ),
                       child: const Icon(

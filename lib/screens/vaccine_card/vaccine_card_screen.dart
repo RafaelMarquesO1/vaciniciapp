@@ -4,6 +4,8 @@ import 'package:vaciniciapp/data/mock_data.dart';
 import 'package:vaciniciapp/routes/app_routes.dart';
 import 'package:vaciniciapp/theme/app_theme.dart';
 import 'package:vaciniciapp/widgets/animated_fab.dart';
+import 'package:vaciniciapp/widgets/responsive_widget.dart';
+import 'package:vaciniciapp/widgets/adaptive_card.dart';
 
 class VaccineCardScreen extends StatefulWidget {
   const VaccineCardScreen({super.key});
@@ -34,6 +36,7 @@ class _VaccineCardScreenState extends State<VaccineCardScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
     final vaccines = _filteredVaccines;
     final user = MockData.loggedInUser;
 
@@ -46,22 +49,22 @@ class _VaccineCardScreenState extends State<VaccineCardScreen> {
             floating: false,
             pinned: true,
             backgroundColor: Colors.transparent,
-            foregroundColor: Theme.of(context).textTheme.titleLarge?.color,
+            foregroundColor: isDark ? AppTheme.darkTextColorPrimary : AppTheme.textColorPrimary,
             elevation: 0,
             flexibleSpace: FlexibleSpaceBar(
-              title: const Text(
+              title: Text(
                 'Carteira de Vacinação',
                 style: TextStyle(
-                  color: AppTheme.textColorPrimary,
+                  color: isDark ? AppTheme.darkTextColorPrimary : AppTheme.textColorPrimary,
                   fontWeight: FontWeight.bold,
                 ),
               ),
               background: Container(
-                decoration: const BoxDecoration(
+                decoration: BoxDecoration(
                   gradient: LinearGradient(
                     begin: Alignment.topLeft,
                     end: Alignment.bottomRight,
-                    colors: Theme.of(context).brightness == Brightness.dark
+                    colors: isDark
                         ? [AppTheme.darkSurfaceColor, AppTheme.darkBackgroundColor]
                         : [AppTheme.primaryColorLight, AppTheme.backgroundColor],
                   ),
@@ -72,37 +75,23 @@ class _VaccineCardScreenState extends State<VaccineCardScreen> {
           
           // Header com informações do usuário
           SliverToBoxAdapter(
-            child: Container(
+            child: AdaptiveCard(
               margin: const EdgeInsets.all(20),
               padding: const EdgeInsets.all(20),
-              decoration: BoxDecoration(
-                color: Theme.of(context).cardColor,
-                borderRadius: BorderRadius.circular(20),
-                boxShadow: Theme.of(context).brightness == Brightness.dark
-                    ? AppTheme.darkCardShadow
-                    : [
-                        BoxShadow(
-                          color: AppTheme.primaryColor.withOpacity(0.1),
-                          blurRadius: 15,
-                          offset: const Offset(0, 5),
-                        ),
-                      ],
-              ),
+              showBorder: true,
               child: Row(
                 children: [
                   Container(
                     padding: const EdgeInsets.all(12),
                     decoration: BoxDecoration(
-                      color: Theme.of(context).brightness == Brightness.dark
+                      color: isDark
                           ? AppTheme.darkPrimaryColor.withOpacity(0.2)
                           : AppTheme.primaryColorLight,
                       borderRadius: BorderRadius.circular(16),
                     ),
                     child: Icon(
                       Icons.person,
-                      color: Theme.of(context).brightness == Brightness.dark
-                          ? AppTheme.darkPrimaryColor
-                          : AppTheme.primaryColor,
+                      color: isDark ? AppTheme.darkPrimaryColor : AppTheme.primaryColor,
                       size: 32,
                     ),
                   ),
@@ -111,34 +100,31 @@ class _VaccineCardScreenState extends State<VaccineCardScreen> {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Text(
+                        AdaptiveText(
                           user.nomeCompleto,
                           style: Theme.of(context).textTheme.titleLarge?.copyWith(
                             fontWeight: FontWeight.bold,
+                            color: isDark ? AppTheme.darkTextColorPrimary : AppTheme.textColorPrimary,
                           ),
                         ),
                         const SizedBox(height: 4),
-                        Text(
+                        AdaptiveText(
                           'CPF: ${user.cpf}',
                           style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                            color: AppTheme.textColorSecondary,
+                            color: isDark ? AppTheme.darkTextColorSecondary : AppTheme.textColorSecondary,
                           ),
                         ),
                         const SizedBox(height: 8),
                         Container(
                           padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
                           decoration: BoxDecoration(
-                            color: (Theme.of(context).brightness == Brightness.dark
-                                ? AppTheme.darkPrimaryColor
-                                : AppTheme.primaryColor).withOpacity(0.1),
+                            color: (isDark ? AppTheme.darkPrimaryColor : AppTheme.primaryColor).withOpacity(0.1),
                             borderRadius: BorderRadius.circular(12),
                           ),
-                          child: Text(
+                          child: AdaptiveText(
                             '${vaccines.length} vacinas aplicadas',
                             style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                              color: Theme.of(context).brightness == Brightness.dark
-                                  ? AppTheme.darkPrimaryColor
-                                  : AppTheme.primaryColor,
+                              color: isDark ? AppTheme.darkPrimaryColor : AppTheme.primaryColor,
                               fontWeight: FontWeight.w600,
                             ),
                           ),
@@ -170,19 +156,30 @@ class _VaccineCardScreenState extends State<VaccineCardScreen> {
                       padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
                       decoration: BoxDecoration(
                         color: isSelected 
-                            ? (Theme.of(context).brightness == Brightness.dark ? AppTheme.darkPrimaryColor : AppTheme.primaryColor)
-                            : Theme.of(context).cardColor,
+                            ? (isDark ? AppTheme.darkPrimaryColor : AppTheme.primaryColor)
+                            : (isDark ? AppTheme.darkCardColor : Colors.white),
                         borderRadius: BorderRadius.circular(25),
                         border: Border.all(
                           color: isSelected 
-                              ? (Theme.of(context).brightness == Brightness.dark ? AppTheme.darkPrimaryColor : AppTheme.primaryColor)
-                              : Theme.of(context).dividerColor,
+                              ? (isDark ? AppTheme.darkPrimaryColor : AppTheme.primaryColor)
+                              : (isDark ? AppTheme.darkTextColorTertiary : Theme.of(context).dividerColor),
                         ),
+                        boxShadow: [
+                          BoxShadow(
+                            color: isDark 
+                                ? Colors.black.withOpacity(0.3)
+                                : AppTheme.primaryColor.withOpacity(0.1),
+                            blurRadius: 8,
+                            offset: const Offset(0, 2),
+                          ),
+                        ],
                       ),
-                      child: Text(
+                      child: AdaptiveText(
                         filter,
                         style: TextStyle(
-                          color: isSelected ? Colors.white : Theme.of(context).textTheme.bodyMedium?.color,
+                          color: isSelected 
+                              ? Colors.white 
+                              : (isDark ? AppTheme.darkTextColorPrimary : AppTheme.textColorPrimary),
                           fontWeight: isSelected ? FontWeight.w600 : FontWeight.normal,
                         ),
                       ),
@@ -198,25 +195,21 @@ class _VaccineCardScreenState extends State<VaccineCardScreen> {
           // Lista de vacinas
           vaccines.isEmpty
               ? SliverToBoxAdapter(
-                  child: Container(
+                  child: AdaptiveCard(
                     margin: const EdgeInsets.all(20),
                     padding: const EdgeInsets.all(40),
-                    decoration: BoxDecoration(
-                      color: Colors.white,
-                      borderRadius: BorderRadius.circular(20),
-                    ),
                     child: Column(
                       children: [
                         Icon(
                           Icons.vaccines_outlined,
                           size: 64,
-                          color: AppTheme.textColorSecondary.withOpacity(0.5),
+                          color: (isDark ? AppTheme.darkTextColorSecondary : AppTheme.textColorSecondary).withOpacity(0.5),
                         ),
                         const SizedBox(height: 16),
-                        Text(
+                        AdaptiveText(
                           'Nenhuma vacina encontrada',
                           style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                            color: AppTheme.textColorSecondary,
+                            color: isDark ? AppTheme.darkTextColorSecondary : AppTheme.textColorSecondary,
                           ),
                         ),
                       ],
@@ -261,9 +254,7 @@ class _VaccineCardScreenState extends State<VaccineCardScreen> {
                         Text('Download iniciado!'),
                       ],
                     ),
-                    backgroundColor: Theme.of(context).brightness == Brightness.dark
-                        ? AppTheme.darkPrimaryColor
-                        : AppTheme.primaryColor,
+                    backgroundColor: isDark ? AppTheme.darkPrimaryColor : AppTheme.primaryColor,
                     behavior: SnackBarBehavior.floating,
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(12),
@@ -322,6 +313,9 @@ class _VaccineCardState extends State<_VaccineCard>
 
   @override
   Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final primaryColor = isDark ? AppTheme.darkPrimaryColor : AppTheme.primaryColor;
+    
     return AnimatedBuilder(
       animation: _controller,
       builder: (context, child) {
@@ -329,144 +323,112 @@ class _VaccineCardState extends State<_VaccineCard>
           scale: _scaleAnimation.value,
           child: SlideTransition(
             position: _slideAnimation,
-            child: Container(
+            child: GradientCard(
               margin: const EdgeInsets.only(bottom: 16),
-              decoration: BoxDecoration(
-                gradient: LinearGradient(
-                  colors: [
-                    Colors.white,
-                    AppTheme.primaryColor.withOpacity(0.01),
-                  ],
-                  begin: Alignment.topLeft,
-                  end: Alignment.bottomRight,
-                ),
-                borderRadius: BorderRadius.circular(24),
-                boxShadow: [
-                  BoxShadow(
-                    color: AppTheme.primaryColor.withOpacity(0.1),
-                    blurRadius: 20,
-                    offset: const Offset(0, 8),
-                  ),
-                  BoxShadow(
-                    color: Colors.white,
-                    blurRadius: 10,
-                    offset: const Offset(-5, -5),
-                  ),
-                ],
-                border: Border.all(
-                  color: AppTheme.primaryColor.withOpacity(0.05),
-                  width: 1,
-                ),
-              ),
-              child: Material(
-                color: Colors.transparent,
-                child: InkWell(
-                  onTap: widget.onTap,
-                  onTapDown: (_) => _controller.forward(),
-                  onTapUp: (_) => _controller.reverse(),
-                  onTapCancel: () => _controller.reverse(),
-                  borderRadius: BorderRadius.circular(24),
-                  child: Padding(
-                    padding: const EdgeInsets.all(20),
-                    child: Row(
-                      children: [
-                        Container(
-                          padding: const EdgeInsets.all(16),
-                          decoration: BoxDecoration(
-                            gradient: LinearGradient(
-                              colors: [
-                                AppTheme.primaryColor.withOpacity(0.1),
-                                AppTheme.primaryColor.withOpacity(0.05),
-                              ],
-                            ),
-                            borderRadius: BorderRadius.circular(20),
-                            boxShadow: [
-                              BoxShadow(
-                                color: AppTheme.primaryColor.withOpacity(0.1),
-                                blurRadius: 8,
-                                offset: const Offset(0, 2),
-                              ),
-                            ],
-                          ),
-                          child: const Icon(
-                            Icons.vaccines_rounded,
-                            color: AppTheme.primaryColor,
-                            size: 28,
-                          ),
+              gradientColors: isDark
+                  ? [AppTheme.darkCardColor, AppTheme.darkSurfaceColor]
+                  : [Colors.white, AppTheme.primaryColor.withOpacity(0.01)],
+              borderRadius: BorderRadius.circular(24),
+              onTap: widget.onTap,
+              child: Padding(
+                padding: const EdgeInsets.all(20),
+                child: Row(
+                  children: [
+                    Container(
+                      padding: const EdgeInsets.all(16),
+                      decoration: BoxDecoration(
+                        gradient: LinearGradient(
+                          colors: [
+                            primaryColor.withOpacity(0.1),
+                            primaryColor.withOpacity(0.05),
+                          ],
                         ),
-                        const SizedBox(width: 20),
-                        Expanded(
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Text(
-                                widget.vaccine.nomeVacina,
-                                style: const TextStyle(
-                                  fontWeight: FontWeight.bold,
-                                  fontSize: 16,
-                                  color: AppTheme.textColorPrimary,
-                                ),
-                              ),
-                              const SizedBox(height: 6),
-                              Container(
-                                padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
-                                decoration: BoxDecoration(
-                                  color: AppTheme.primaryColor.withOpacity(0.1),
-                                  borderRadius: BorderRadius.circular(12),
-                                ),
-                                child: Text(
-                                  widget.vaccine.dose,
-                                  style: const TextStyle(
-                                    color: AppTheme.primaryColor,
-                                    fontWeight: FontWeight.w600,
-                                    fontSize: 12,
-                                  ),
-                                ),
-                              ),
-                              const SizedBox(height: 8),
-                              Row(
-                                children: [
-                                  Container(
-                                    padding: const EdgeInsets.all(4),
-                                    decoration: BoxDecoration(
-                                      color: AppTheme.textColorSecondary.withOpacity(0.1),
-                                      borderRadius: BorderRadius.circular(8),
-                                    ),
-                                    child: Icon(
-                                      Icons.calendar_today_rounded,
-                                      size: 12,
-                                      color: AppTheme.textColorSecondary,
-                                    ),
-                                  ),
-                                  const SizedBox(width: 8),
-                                  Text(
-                                    DateFormat('dd/MM/yyyy', 'pt_BR').format(widget.vaccine.dataAplicacao),
-                                    style: const TextStyle(
-                                      color: AppTheme.textColorSecondary,
-                                      fontSize: 13,
-                                      fontWeight: FontWeight.w500,
-                                    ),
-                                  ),
-                                ],
-                              ),
-                            ],
+                        borderRadius: BorderRadius.circular(20),
+                        boxShadow: [
+                          BoxShadow(
+                            color: primaryColor.withOpacity(0.1),
+                            blurRadius: 8,
+                            offset: const Offset(0, 2),
                           ),
-                        ),
-                        Container(
-                          padding: const EdgeInsets.all(8),
-                          decoration: BoxDecoration(
-                            color: AppTheme.primaryColor.withOpacity(0.05),
-                            borderRadius: BorderRadius.circular(12),
-                          ),
-                          child: const Icon(
-                            Icons.arrow_forward_ios_rounded,
-                            color: AppTheme.primaryColor,
-                            size: 16,
-                          ),
-                        ),
-                      ],
+                        ],
+                      ),
+                      child: Icon(
+                        Icons.vaccines_rounded,
+                        color: primaryColor,
+                        size: 28,
+                      ),
                     ),
-                  ),
+                    const SizedBox(width: 20),
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          AdaptiveText(
+                            widget.vaccine.nomeVacina,
+                            style: TextStyle(
+                              fontWeight: FontWeight.bold,
+                              fontSize: 16,
+                              color: isDark ? AppTheme.darkTextColorPrimary : AppTheme.textColorPrimary,
+                            ),
+                          ),
+                          const SizedBox(height: 6),
+                          Container(
+                            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
+                            decoration: BoxDecoration(
+                              color: primaryColor.withOpacity(0.1),
+                              borderRadius: BorderRadius.circular(12),
+                            ),
+                            child: AdaptiveText(
+                              widget.vaccine.dose,
+                              style: TextStyle(
+                                color: primaryColor,
+                                fontWeight: FontWeight.w600,
+                                fontSize: 12,
+                              ),
+                            ),
+                          ),
+                          const SizedBox(height: 8),
+                          Row(
+                            children: [
+                              Container(
+                                padding: const EdgeInsets.all(4),
+                                decoration: BoxDecoration(
+                                  color: (isDark ? AppTheme.darkTextColorSecondary : AppTheme.textColorSecondary).withOpacity(0.1),
+                                  borderRadius: BorderRadius.circular(8),
+                                ),
+                                child: Icon(
+                                  Icons.calendar_today_rounded,
+                                  size: 12,
+                                  color: isDark ? AppTheme.darkTextColorSecondary : AppTheme.textColorSecondary,
+                                ),
+                              ),
+                              const SizedBox(width: 8),
+                              AdaptiveText(
+                                DateFormat('dd/MM/yyyy', 'pt_BR').format(widget.vaccine.dataAplicacao),
+                                style: TextStyle(
+                                  color: isDark ? AppTheme.darkTextColorSecondary : AppTheme.textColorSecondary,
+                                  fontSize: 13,
+                                  fontWeight: FontWeight.w500,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ],
+                      ),
+                    ),
+                    Container(
+                      padding: const EdgeInsets.all(8),
+                      decoration: BoxDecoration(
+                        color: primaryColor.withOpacity(0.05),
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                      child: Icon(
+                        Icons.arrow_forward_ios_rounded,
+                        color: primaryColor,
+                        size: 16,
+                      ),
+                    ),
+                  ],
                 ),
               ),
             ),

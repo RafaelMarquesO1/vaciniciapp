@@ -3,6 +3,8 @@ import 'package:vaciniciapp/screens/home/home_screen.dart';
 import 'package:vaciniciapp/theme/app_theme.dart';
 import 'package:vaciniciapp/data/mock_data.dart';
 import 'package:vaciniciapp/routes/app_routes.dart';
+import 'package:vaciniciapp/widgets/adaptive_card.dart';
+import 'package:vaciniciapp/widgets/responsive_widget.dart';
 
 class MainLayout extends StatefulWidget {
   const MainLayout({super.key});
@@ -40,6 +42,8 @@ class _MainLayoutState extends State<MainLayout> {
 
   @override
   Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    
     return Scaffold(
       body: PageView(
         controller: _pageController,
@@ -56,10 +60,10 @@ class _MainLayoutState extends State<MainLayout> {
       ),
       bottomNavigationBar: Container(
         decoration: BoxDecoration(
-          color: Colors.white,
+          color: isDark ? AppTheme.darkCardColor : Colors.white,
           boxShadow: [
             BoxShadow(
-              color: Colors.black.withOpacity(0.1),
+              color: isDark ? Colors.black.withOpacity(0.3) : Colors.black.withOpacity(0.1),
               blurRadius: 20,
               offset: const Offset(0, -5),
             ),
@@ -124,7 +128,6 @@ class _NavBarItemState extends State<_NavBarItem>
     with SingleTickerProviderStateMixin {
   late AnimationController _controller;
   late Animation<double> _scaleAnimation;
-  late Animation<double> _bounceAnimation;
 
   @override
   void initState() {
@@ -135,9 +138,6 @@ class _NavBarItemState extends State<_NavBarItem>
     );
     _scaleAnimation = Tween<double>(begin: 1.0, end: 1.2).animate(
       CurvedAnimation(parent: _controller, curve: Curves.elasticOut),
-    );
-    _bounceAnimation = Tween<double>(begin: 0.0, end: 1.0).animate(
-      CurvedAnimation(parent: _controller, curve: Curves.bounceOut),
     );
   }
 
@@ -157,6 +157,9 @@ class _NavBarItemState extends State<_NavBarItem>
 
   @override
   Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final primaryColor = isDark ? AppTheme.darkPrimaryColor : AppTheme.primaryColor;
+    
     return GestureDetector(
       onTap: widget.onTap,
       child: AnimatedContainer(
@@ -167,8 +170,8 @@ class _NavBarItemState extends State<_NavBarItem>
           gradient: widget.isSelected
               ? LinearGradient(
                   colors: [
-                    AppTheme.primaryColor.withOpacity(0.15),
-                    AppTheme.primaryColor.withOpacity(0.05),
+                    primaryColor.withOpacity(0.15),
+                    primaryColor.withOpacity(0.05),
                   ],
                   begin: Alignment.topLeft,
                   end: Alignment.bottomRight,
@@ -178,7 +181,7 @@ class _NavBarItemState extends State<_NavBarItem>
           boxShadow: widget.isSelected
               ? [
                   BoxShadow(
-                    color: AppTheme.primaryColor.withOpacity(0.2),
+                    color: primaryColor.withOpacity(0.2),
                     blurRadius: 10,
                     offset: const Offset(0, 3),
                   ),
@@ -197,15 +200,15 @@ class _NavBarItemState extends State<_NavBarItem>
                     padding: const EdgeInsets.all(2),
                     decoration: widget.isSelected
                         ? BoxDecoration(
-                            color: AppTheme.primaryColor.withOpacity(0.1),
+                            color: primaryColor.withOpacity(0.1),
                             borderRadius: BorderRadius.circular(12),
                           )
                         : null,
                     child: Icon(
                       widget.isSelected ? widget.activeIcon : widget.icon,
                       color: widget.isSelected
-                          ? AppTheme.primaryColor
-                          : AppTheme.textColorSecondary,
+                          ? primaryColor
+                          : (isDark ? AppTheme.darkTextColorSecondary : AppTheme.textColorSecondary),
                       size: 24,
                     ),
                   ),
@@ -217,8 +220,8 @@ class _NavBarItemState extends State<_NavBarItem>
               duration: const Duration(milliseconds: 200),
               style: TextStyle(
                 color: widget.isSelected
-                    ? AppTheme.primaryColor
-                    : AppTheme.textColorSecondary,
+                    ? primaryColor
+                    : (isDark ? AppTheme.darkTextColorSecondary : AppTheme.textColorSecondary),
                 fontSize: 11,
                 fontWeight: widget.isSelected ? FontWeight.w700 : FontWeight.w500,
               ),
@@ -236,12 +239,13 @@ class _ScheduleScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    
     return Scaffold(
       appBar: AppBar(
         title: const Text('Agendamentos'),
         backgroundColor: Colors.transparent,
         elevation: 0,
-        foregroundColor: AppTheme.textColorPrimary,
       ),
       body: Center(
         child: Column(
@@ -250,20 +254,21 @@ class _ScheduleScreen extends StatelessWidget {
             Icon(
               Icons.calendar_month_outlined,
               size: 80,
-              color: AppTheme.textColorSecondary.withOpacity(0.5),
+              color: (isDark ? AppTheme.darkTextColorSecondary : AppTheme.textColorSecondary).withOpacity(0.5),
             ),
             const SizedBox(height: 24),
-            Text(
+            AdaptiveText(
               'Agendamentos',
               style: Theme.of(context).textTheme.headlineSmall?.copyWith(
                 fontWeight: FontWeight.bold,
+                color: isDark ? AppTheme.darkTextColorPrimary : AppTheme.textColorPrimary,
               ),
             ),
             const SizedBox(height: 8),
-            Text(
+            AdaptiveText(
               'Gerencie seus agendamentos de vacinação',
               style: Theme.of(context).textTheme.bodyLarge?.copyWith(
-                color: AppTheme.textColorSecondary,
+                color: isDark ? AppTheme.darkTextColorSecondary : AppTheme.textColorSecondary,
               ),
               textAlign: TextAlign.center,
             ),
@@ -296,15 +301,11 @@ class _ProfileScreen extends StatelessWidget {
             onPressed: () => Navigator.pop(context),
             child: const Text('Cancelar'),
           ),
-          ElevatedButton(
+          TextButton(
             onPressed: () {
               Navigator.pop(context);
-              Navigator.of(context).pushNamedAndRemoveUntil(
-                AppRoutes.onboarding,
-                (route) => false,
-              );
+              Navigator.of(context).pushReplacementNamed(AppRoutes.login);
             },
-            style: ElevatedButton.styleFrom(backgroundColor: Colors.red),
             child: const Text('Sair'),
           ),
         ],
@@ -314,6 +315,7 @@ class _ProfileScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
     final user = MockData.loggedInUser;
     
     return Scaffold(
@@ -321,139 +323,111 @@ class _ProfileScreen extends StatelessWidget {
         title: const Text('Perfil'),
         backgroundColor: Colors.transparent,
         elevation: 0,
-        foregroundColor: AppTheme.textColorPrimary,
+        actions: [
+          IconButton(
+            onPressed: () => Navigator.of(context).pushNamed(AppRoutes.settings),
+            icon: const Icon(Icons.settings),
+          ),
+        ],
       ),
-      body: SingleChildScrollView(
-        padding: const EdgeInsets.all(20),
+      body: ResponsivePadding(
         child: Column(
           children: [
-            // Header do perfil
-            Container(
-              padding: const EdgeInsets.all(24),
-              decoration: BoxDecoration(
-                color: Colors.white,
-                borderRadius: BorderRadius.circular(20),
-                boxShadow: [
-                  BoxShadow(
-                    color: AppTheme.primaryColor.withOpacity(0.1),
-                    blurRadius: 15,
-                    offset: const Offset(0, 5),
-                  ),
-                ],
-              ),
+            const SizedBox(height: 20),
+            AdaptiveCard(
               child: Column(
                 children: [
-                  Container(
-                    padding: const EdgeInsets.all(20),
-                    decoration: BoxDecoration(
-                      color: AppTheme.primaryColorLight,
-                      borderRadius: BorderRadius.circular(50),
-                    ),
-                    child: const Icon(
+                  CircleAvatar(
+                    radius: 50,
+                    backgroundColor: isDark ? AppTheme.darkPrimaryColor.withOpacity(0.2) : AppTheme.primaryColorLight,
+                    child: Icon(
                       Icons.person,
-                      size: 40,
-                      color: AppTheme.primaryColor,
+                      size: 50,
+                      color: isDark ? AppTheme.darkPrimaryColor : AppTheme.primaryColor,
                     ),
                   ),
                   const SizedBox(height: 16),
-                  Text(
+                  AdaptiveText(
                     user.nomeCompleto,
                     style: Theme.of(context).textTheme.titleLarge?.copyWith(
                       fontWeight: FontWeight.bold,
+                      color: isDark ? AppTheme.darkTextColorPrimary : AppTheme.textColorPrimary,
                     ),
                   ),
                   const SizedBox(height: 8),
-                  Text(
+                  AdaptiveText(
                     'CPF: ${user.cpf}',
                     style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                      color: AppTheme.textColorSecondary,
+                      color: isDark ? AppTheme.darkTextColorSecondary : AppTheme.textColorSecondary,
                     ),
                   ),
                 ],
               ),
             ),
-            
-            const SizedBox(height: 24),
-            
-            // Opções do perfil
-            _ProfileOption(
-              icon: Icons.edit_outlined,
-              title: 'Editar Perfil',
+            const SizedBox(height: 32),
+            AdaptiveCard(
               onTap: () => Navigator.of(context).pushNamed(AppRoutes.editProfile),
+              child: ListTile(
+                leading: Icon(
+                  Icons.edit,
+                  color: isDark ? AppTheme.darkPrimaryColor : AppTheme.primaryColor,
+                ),
+                title: AdaptiveText(
+                  'Editar Perfil',
+                  style: TextStyle(
+                    color: isDark ? AppTheme.darkTextColorPrimary : AppTheme.textColorPrimary,
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
+                trailing: Icon(
+                  Icons.chevron_right,
+                  color: isDark ? AppTheme.darkTextColorSecondary : AppTheme.textColorSecondary,
+                ),
+              ),
             ),
-            _ProfileOption(
-              icon: Icons.settings_outlined,
-              title: 'Configurações',
-              onTap: () => Navigator.of(context).pushNamed(AppRoutes.settings),
+            const SizedBox(height: 12),
+            AdaptiveCard(
+              onTap: () => Navigator.of(context).pushNamed(AppRoutes.vaccineCard),
+              child: ListTile(
+                leading: Icon(
+                  Icons.vaccines,
+                  color: isDark ? AppTheme.darkPrimaryColor : AppTheme.primaryColor,
+                ),
+                title: AdaptiveText(
+                  'Carteira de Vacinação',
+                  style: TextStyle(
+                    color: isDark ? AppTheme.darkTextColorPrimary : AppTheme.textColorPrimary,
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
+                trailing: Icon(
+                  Icons.chevron_right,
+                  color: isDark ? AppTheme.darkTextColorSecondary : AppTheme.textColorSecondary,
+                ),
+              ),
             ),
-            _ProfileOption(
-              icon: Icons.schedule_outlined,
-              title: 'Meus Agendamentos',
-              onTap: () => Navigator.of(context).pushNamed(AppRoutes.schedule),
-            ),
-            _ProfileOption(
-              icon: Icons.analytics_outlined,
-              title: 'Estatísticas',
-              onTap: () => Navigator.of(context).pushNamed(AppRoutes.statistics),
-            ),
-            _ProfileOption(
-              icon: Icons.help_outline,
-              title: 'Ajuda e Suporte',
-              onTap: () {},
-            ),
-            _ProfileOption(
-              icon: Icons.logout,
-              title: 'Sair',
-              isDestructive: true,
+            const SizedBox(height: 12),
+            AdaptiveCard(
               onTap: () => _showLogoutDialog(context),
+              child: ListTile(
+                leading: const Icon(
+                  Icons.logout,
+                  color: Colors.red,
+                ),
+                title: const AdaptiveText(
+                  'Sair do App',
+                  style: TextStyle(
+                    color: Colors.red,
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
+                trailing: Icon(
+                  Icons.chevron_right,
+                  color: isDark ? AppTheme.darkTextColorSecondary : AppTheme.textColorSecondary,
+                ),
+              ),
             ),
           ],
-        ),
-      ),
-    );
-  }
-}
-
-class _ProfileOption extends StatelessWidget {
-  final IconData icon;
-  final String title;
-  final VoidCallback onTap;
-  final bool isDestructive;
-
-  const _ProfileOption({
-    required this.icon,
-    required this.title,
-    required this.onTap,
-    this.isDestructive = false,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      margin: const EdgeInsets.only(bottom: 8),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(16),
-      ),
-      child: ListTile(
-        leading: Icon(
-          icon,
-          color: isDestructive ? Colors.red : AppTheme.primaryColor,
-        ),
-        title: Text(
-          title,
-          style: TextStyle(
-            color: isDestructive ? Colors.red : AppTheme.textColorPrimary,
-            fontWeight: FontWeight.w500,
-          ),
-        ),
-        trailing: Icon(
-          Icons.chevron_right,
-          color: AppTheme.textColorSecondary,
-        ),
-        onTap: onTap,
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(16),
         ),
       ),
     );

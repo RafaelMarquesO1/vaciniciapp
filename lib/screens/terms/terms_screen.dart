@@ -1,34 +1,40 @@
 import 'package:flutter/material.dart';
 import 'package:vaciniciapp/theme/app_theme.dart';
+import 'package:vaciniciapp/widgets/adaptive_card.dart';
+import 'package:vaciniciapp/widgets/responsive_widget.dart';
 
 class TermsScreen extends StatelessWidget {
   const TermsScreen({super.key});
 
   @override
   Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final primaryColor = isDark ? AppTheme.darkPrimaryColor : AppTheme.primaryColor;
+    
     return Scaffold(
+      backgroundColor: isDark ? AppTheme.darkBackgroundColor : AppTheme.backgroundColor,
       appBar: AppBar(
         title: const Text('Termos de Uso'),
         backgroundColor: Colors.transparent,
         elevation: 0,
       ),
       body: SingleChildScrollView(
-        padding: const EdgeInsets.all(20),
+        padding: context.responsivePadding,
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text(
+            AdaptiveText(
               'Termos de Uso do Vacinici',
               style: Theme.of(context).textTheme.headlineSmall?.copyWith(
                 fontWeight: FontWeight.bold,
-                color: AppTheme.primaryColor,
+                color: primaryColor,
               ),
             ),
             const SizedBox(height: 8),
-            Text(
+            AdaptiveText(
               'Última atualização: ${DateTime.now().day}/${DateTime.now().month}/${DateTime.now().year}',
               style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                color: AppTheme.textColorSecondary,
+                color: isDark ? AppTheme.darkTextColorSecondary : AppTheme.textColorSecondary,
               ),
             ),
             const SizedBox(height: 24),
@@ -85,22 +91,22 @@ class TermsScreen extends StatelessWidget {
             Container(
               padding: const EdgeInsets.all(16),
               decoration: BoxDecoration(
-                color: AppTheme.primaryColor.withOpacity(0.1),
+                color: primaryColor.withOpacity(0.1),
                 borderRadius: BorderRadius.circular(12),
               ),
               child: Row(
                 children: [
                   Icon(
                     Icons.info_outline,
-                    color: AppTheme.primaryColor,
+                    color: primaryColor,
                     size: 20,
                   ),
                   const SizedBox(width: 12),
                   Expanded(
-                    child: Text(
+                    child: AdaptiveText(
                       'Ao continuar usando o aplicativo, você confirma que leu e aceita estes termos.',
                       style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                        color: AppTheme.primaryColor,
+                        color: primaryColor,
                       ),
                     ),
                   ),
@@ -114,22 +120,26 @@ class TermsScreen extends StatelessWidget {
   }
 
   Widget _buildSection(BuildContext context, String title, String content) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    
     return Padding(
       padding: const EdgeInsets.only(bottom: 20),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(
+          AdaptiveText(
             title,
             style: Theme.of(context).textTheme.titleMedium?.copyWith(
               fontWeight: FontWeight.bold,
+              color: isDark ? AppTheme.darkTextColorPrimary : AppTheme.textColorPrimary,
             ),
           ),
           const SizedBox(height: 8),
-          Text(
+          AdaptiveText(
             content,
             style: Theme.of(context).textTheme.bodyMedium?.copyWith(
               height: 1.5,
+              color: isDark ? AppTheme.darkTextColorPrimary : AppTheme.textColorPrimary,
             ),
           ),
         ],

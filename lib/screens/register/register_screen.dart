@@ -3,6 +3,8 @@ import 'package:flutter/services.dart';
 import 'package:mask_text_input_formatter/mask_text_input_formatter.dart';
 import 'package:vaciniciapp/routes/app_routes.dart';
 import 'package:vaciniciapp/theme/app_theme.dart';
+import 'package:vaciniciapp/widgets/responsive_widget.dart';
+import 'package:vaciniciapp/widgets/adaptive_card.dart';
 
 class RegisterScreen extends StatefulWidget {
   const RegisterScreen({super.key});
@@ -60,36 +62,64 @@ class _RegisterScreenState extends State<RegisterScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final primaryColor = isDark ? AppTheme.darkPrimaryColor : AppTheme.primaryColor;
+    
     return Scaffold(
-      body: SafeArea(
-        child: SingleChildScrollView(
-          padding: const EdgeInsets.all(24.0),
-          child: Form(
-            key: _formKey,
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.stretch,
-              children: [
-                const SizedBox(height: 20),
-                Row(
-                  children: [
-                    IconButton(
-                      onPressed: () => Navigator.pop(context),
-                      icon: const Icon(Icons.arrow_back),
-                    ),
-                    const SizedBox(width: 8),
-                    Text('Criar Conta', style: Theme.of(context).textTheme.headlineSmall?.copyWith(
-                      fontWeight: FontWeight.bold,
-                      color: AppTheme.textColorPrimary,
-                    )),
-                  ],
-                ),
-                const SizedBox(height: 16),
-                Text(
-                  'Preencha os dados para criar sua conta',
-                  style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                    color: AppTheme.textColorSecondary,
+      body: Container(
+        decoration: BoxDecoration(
+          gradient: LinearGradient(
+            begin: Alignment.topLeft,
+            end: Alignment.bottomRight,
+            colors: isDark 
+                ? [AppTheme.darkBackgroundColor, AppTheme.darkSurfaceColor]
+                : [AppTheme.backgroundColor, Colors.white],
+          ),
+        ),
+        child: SafeArea(
+          child: ResponsiveBuilder(
+            builder: (context, constraints) {
+              final isWideScreen = constraints.maxWidth > AppTheme.mobileBreakpoint;
+              
+              return Center(
+                child: ConstrainedBox(
+                  constraints: BoxConstraints(
+                    maxWidth: isWideScreen ? 400 : double.infinity,
                   ),
-                ),
+                  child: SingleChildScrollView(
+                    padding: context.responsivePadding,
+                    child: Form(
+                      key: _formKey,
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.stretch,
+                        children: [
+                          const SizedBox(height: 20),
+                          Row(
+                            children: [
+                              IconButton(
+                                onPressed: () => Navigator.pop(context),
+                                icon: Icon(
+                                  Icons.arrow_back,
+                                  color: isDark ? AppTheme.darkTextColorPrimary : AppTheme.textColorPrimary,
+                                ),
+                              ),
+                              const SizedBox(width: 8),
+                              AdaptiveText(
+                                'Criar Conta', 
+                                style: Theme.of(context).textTheme.headlineSmall?.copyWith(
+                                  fontWeight: FontWeight.bold,
+                                  color: isDark ? AppTheme.darkTextColorPrimary : AppTheme.textColorPrimary,
+                                ),
+                              ),
+                            ],
+                          ),
+                          const SizedBox(height: 16),
+                          AdaptiveText(
+                            'Preencha os dados para criar sua conta',
+                            style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                              color: isDark ? AppTheme.darkTextColorSecondary : AppTheme.textColorSecondary,
+                            ),
+                          ),
                 const SizedBox(height: 32),
                 TextFormField(
                   controller: _nameController,
@@ -125,31 +155,75 @@ class _RegisterScreenState extends State<RegisterScreen> {
                   obscureText: _obscurePassword,
                   validator: _validatePassword,
                 ),
-                const SizedBox(height: 24),
-                Row(
-                  children: [
-                    Checkbox(
-                      value: _acceptTerms,
-                      onChanged: (value) => setState(() => _acceptTerms = value ?? false),
-                      activeColor: AppTheme.primaryColor,
+                          const SizedBox(height: 24),
+                          Row(
+                            children: [
+                              Checkbox(
+                                value: _acceptTerms,
+                                onChanged: (value) => setState(() => _acceptTerms = value ?? false),
+                                activeColor: primaryColor,
+                              ),
+                              Expanded(
+                                child: AdaptiveText(
+                                  'Aceito os termos de uso', 
+                                  style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                                    color: isDark ? AppTheme.darkTextColorPrimary : AppTheme.textColorPrimary,
+                                  ),
+                                ),
+                              ),
+                            ],
+                          ),
+                          const SizedBox(height: 32),
+                          Container(
+                            height: 56,
+                            decoration: BoxDecoration(
+                              gradient: LinearGradient(
+                                colors: [primaryColor, primaryColor.withOpacity(0.8)],
+                              ),
+                              borderRadius: BorderRadius.circular(16),
+                              boxShadow: [
+                                BoxShadow(
+                                  color: primaryColor.withOpacity(0.3),
+                                  blurRadius: 15,
+                                  offset: const Offset(0, 8),
+                                ),
+                              ],
+                            ),
+                            child: ElevatedButton(
+                              onPressed: _isLoading ? null : _handleRegister,
+                              style: ElevatedButton.styleFrom(
+                                backgroundColor: Colors.transparent,
+                                shadowColor: Colors.transparent,
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(16),
+                                ),
+                              ),
+                              child: _isLoading
+                                  ? const SizedBox(
+                                      height: 20,
+                                      width: 20,
+                                      child: CircularProgressIndicator(
+                                        strokeWidth: 2,
+                                        valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
+                                      ),
+                                    )
+                                  : const Text(
+                                      'Criar Conta',
+                                      style: TextStyle(
+                                        color: Colors.white,
+                                        fontSize: 16,
+                                        fontWeight: FontWeight.bold,
+                                      ),
+                                    ),
+                            ),
+                          ),
+                        ],
+                      ),
                     ),
-                    Expanded(
-                      child: Text('Aceito os termos de uso', style: Theme.of(context).textTheme.bodyMedium),
-                    ),
-                  ],
-                ),
-                const SizedBox(height: 32),
-                SizedBox(
-                  height: 56,
-                  child: ElevatedButton(
-                    onPressed: _isLoading ? null : _handleRegister,
-                    child: _isLoading
-                        ? const CircularProgressIndicator(color: Colors.white)
-                        : const Text('Criar Conta'),
                   ),
                 ),
-              ],
-            ),
+              );
+            },
           ),
         ),
       ),

@@ -3,6 +3,8 @@ import 'package:provider/provider.dart';
 import 'package:vaciniciapp/providers/theme_provider.dart';
 import 'package:vaciniciapp/routes/app_routes.dart';
 import 'package:vaciniciapp/theme/app_theme.dart';
+import 'package:vaciniciapp/widgets/responsive_widget.dart';
+import 'package:vaciniciapp/widgets/adaptive_card.dart';
 
 class SettingsScreen extends StatefulWidget {
   const SettingsScreen({super.key});
@@ -18,6 +20,8 @@ class _SettingsScreenState extends State<SettingsScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    
     return Scaffold(
       appBar: AppBar(
         title: const Text('Configurações'),
@@ -25,60 +29,55 @@ class _SettingsScreenState extends State<SettingsScreen> {
         elevation: 0,
         centerTitle: true,
       ),
-      body: ListView(
-        padding: const EdgeInsets.all(20),
-        children: [
-          // Header com ícone
-          Container(
-            padding: const EdgeInsets.all(24),
-            decoration: BoxDecoration(
-              gradient: LinearGradient(
-                colors: [
-                  AppTheme.primaryColor.withOpacity(0.1),
-                  AppTheme.primaryColor.withOpacity(0.05),
+      body: ResponsivePadding(
+        child: ListView(
+          children: [
+            // Header com ícone
+            GradientCard(
+              gradientColors: [
+                (isDark ? AppTheme.darkPrimaryColor : AppTheme.primaryColor).withOpacity(0.1),
+                (isDark ? AppTheme.darkPrimaryColor : AppTheme.primaryColor).withOpacity(0.05),
+              ],
+              padding: const EdgeInsets.all(24),
+              child: Row(
+                children: [
+                  Container(
+                    padding: const EdgeInsets.all(12),
+                    decoration: BoxDecoration(
+                      color: (isDark ? AppTheme.darkPrimaryColor : AppTheme.primaryColor).withOpacity(0.2),
+                      borderRadius: BorderRadius.circular(16),
+                    ),
+                    child: Icon(
+                      Icons.settings,
+                      color: isDark ? AppTheme.darkPrimaryColor : AppTheme.primaryColor,
+                      size: 24,
+                    ),
+                  ),
+                  const SizedBox(width: 16),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        AdaptiveText(
+                          'Personalizar App',
+                          style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                            fontWeight: FontWeight.bold,
+                            color: isDark ? AppTheme.darkPrimaryColor : AppTheme.primaryColor,
+                          ),
+                        ),
+                        const SizedBox(height: 4),
+                        AdaptiveText(
+                          'Configure o app do seu jeito',
+                          style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                            color: (isDark ? AppTheme.darkPrimaryColor : AppTheme.primaryColor).withOpacity(0.8),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
                 ],
               ),
-              borderRadius: BorderRadius.circular(20),
             ),
-            child: Row(
-              children: [
-                Container(
-                  padding: const EdgeInsets.all(12),
-                  decoration: BoxDecoration(
-                    color: AppTheme.primaryColor.withOpacity(0.2),
-                    borderRadius: BorderRadius.circular(16),
-                  ),
-                  child: const Icon(
-                    Icons.settings,
-                    color: AppTheme.primaryColor,
-                    size: 24,
-                  ),
-                ),
-                const SizedBox(width: 16),
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        'Personalizar App',
-                        style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                          fontWeight: FontWeight.bold,
-                          color: AppTheme.primaryColor,
-                        ),
-                      ),
-                      const SizedBox(height: 4),
-                      Text(
-                        'Configure o app do seu jeito',
-                        style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                          color: AppTheme.primaryColor.withOpacity(0.8),
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-              ],
-            ),
-          ),
           const SizedBox(height: 32),
           _SectionHeader(
             icon: Icons.notifications_outlined,
@@ -195,7 +194,8 @@ class _SettingsScreenState extends State<SettingsScreen> {
             trailing: const Icon(Icons.chevron_right, color: AppTheme.textColorSecondary),
             onTap: () {},
           ),
-        ],
+          ],
+        ),
       ),
     );
   }
@@ -214,17 +214,20 @@ class _SectionHeader extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final primaryColor = isDark ? AppTheme.darkPrimaryColor : AppTheme.primaryColor;
+    
     return Row(
       children: [
         Container(
           padding: const EdgeInsets.all(8),
           decoration: BoxDecoration(
-            color: AppTheme.primaryColor.withOpacity(0.1),
+            color: primaryColor.withOpacity(0.1),
             borderRadius: BorderRadius.circular(12),
           ),
           child: Icon(
             icon,
-            color: AppTheme.primaryColor,
+            color: primaryColor,
             size: 20,
           ),
         ),
@@ -233,16 +236,16 @@ class _SectionHeader extends StatelessWidget {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Text(
+              AdaptiveText(
                 title,
                 style: Theme.of(context).textTheme.titleMedium?.copyWith(
                   fontWeight: FontWeight.bold,
                 ),
               ),
-              Text(
+              AdaptiveText(
                 subtitle,
                 style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                  color: AppTheme.textColorSecondary,
+                  color: isDark ? AppTheme.darkTextColorSecondary : AppTheme.textColorSecondary,
                 ),
               ),
             ],
@@ -268,43 +271,28 @@ class _SettingsTile extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    
+    return AdaptiveCard(
       margin: const EdgeInsets.only(bottom: 12),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(16),
-        boxShadow: [
-          BoxShadow(
-            color: AppTheme.primaryColor.withOpacity(0.05),
-            blurRadius: 10,
-            offset: const Offset(0, 2),
-          ),
-        ],
-        border: Border.all(
-          color: AppTheme.primaryColor.withOpacity(0.1),
-          width: 1,
-        ),
-      ),
+      showBorder: true,
+      onTap: onTap,
       child: ListTile(
-        title: Text(
+        title: AdaptiveText(
           title,
-          style: const TextStyle(
+          style: TextStyle(
             fontWeight: FontWeight.w600,
-            color: AppTheme.textColorPrimary,
+            color: isDark ? AppTheme.darkTextColorPrimary : AppTheme.textColorPrimary,
           ),
         ),
-        subtitle: Text(
+        subtitle: AdaptiveText(
           subtitle,
           style: TextStyle(
-            color: AppTheme.textColorSecondary,
+            color: isDark ? AppTheme.darkTextColorSecondary : AppTheme.textColorSecondary,
             fontSize: 13,
           ),
         ),
         trailing: trailing,
-        onTap: onTap,
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(16),
-        ),
         contentPadding: const EdgeInsets.symmetric(
           horizontal: 20,
           vertical: 8,
