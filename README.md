@@ -41,50 +41,6 @@ O **VaciniciApp** é uma carteira digital de vacinação moderna e acessível, d
 - **SharedPreferences** - Persistência local
 - **Material Design 3** - Sistema de design
 
-## 📦 Dependências Principais
-
-```yaml
-dependencies:
-  flutter:
-    sdk: flutter
-  provider: ^6.1.2
-  shared_preferences: ^2.2.3
-  intl: ^0.19.0
-  mask_text_input_formatter: ^2.9.0
-```
-
-## 🛠️ Instalação e Execução
-
-### Pré-requisitos
-- Flutter SDK 3.32.5 ou superior
-- Dart 3.0 ou superior
-- Android Studio / VS Code
-- Emulador Android ou dispositivo físico
-
-### Passos para Execução
-
-1. **Clone o repositório**
-```bash
-git clone https://github.com/seu-usuario/vaciniciapp.git
-cd vaciniciapp
-```
-
-2. **Instale as dependências**
-```bash
-flutter pub get
-```
-
-3. **Execute o aplicativo**
-```bash
-flutter run
-```
-
-### Scripts Auxiliares
-
-- **Windows**: Execute `test_app.bat` para limpeza e execução automática
-- **Desenvolvimento**: Use `flutter run --debug` para modo debug
-- **Release**: Use `flutter build apk` para gerar APK
-
 ## 📱 Funcionalidades Detalhadas
 
 ### 🏠 Tela Principal
@@ -152,37 +108,18 @@ lib/
 - Hierarquia visual clara
 - Feedback tátil e visual
 
-## 🧪 Testes
-
-Para executar os testes:
-
-```bash
-flutter test
-```
-
 ## 📄 Licença
 
 Este projeto está sob a licença MIT. Veja o arquivo [LICENSE](LICENSE) para mais detalhes.
 
-## 👥 Contribuição
-
-Contribuições são bem-vindas! Para contribuir:
-
-1. Faça um fork do projeto
-2. Crie uma branch para sua feature (`git checkout -b feature/AmazingFeature`)
-3. Commit suas mudanças (`git commit -m 'Add some AmazingFeature'`)
-4. Push para a branch (`git push origin feature/AmazingFeature`)
-5. Abra um Pull Request
-
 ## 📞 Contato
 
-- **Desenvolvedor**: Seu Nome
-- **Email**: seu.email@exemplo.com
-- **LinkedIn**: [Seu LinkedIn](https://linkedin.com/in/seu-perfil)
+- **Desenvolvedor**: Rafael Marques
+- **Email**: rafaelmarquesm.0209@gmail.com
 
 ---
 
 <div align="center">
   <p>Desenvolvido com ❤️ e Flutter</p>
-  <p>© 2024 VaciniciApp. Todos os direitos reservados.</p>
+  <p>© 2025 VaciniciApp. Todos os direitos reservados.</p>
 </div>
