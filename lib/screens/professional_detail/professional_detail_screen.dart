@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:vaciniciapp/models/usuario.dart';
 import 'package:vaciniciapp/theme/app_theme.dart';
+import 'package:vaciniciapp/widgets/adaptive_card.dart';
+import 'package:vaciniciapp/widgets/responsive_widget.dart';
 
 class ProfessionalDetailScreen extends StatelessWidget {
   const ProfessionalDetailScreen({super.key});
@@ -10,9 +12,10 @@ class ProfessionalDetailScreen extends StatelessWidget {
     final Usuario professional = ModalRoute.of(context)!.settings.arguments as Usuario;
     final theme = Theme.of(context);
     final isDark = theme.brightness == Brightness.dark;
-    final primaryColor = theme.colorScheme.primary;
+    final primaryColor = isDark ? AppTheme.darkPrimaryColor : AppTheme.primaryColor;
 
     return Scaffold(
+      backgroundColor: isDark ? AppTheme.darkBackgroundColor : AppTheme.backgroundColor,
       extendBodyBehindAppBar: true,
       appBar: AppBar(
         backgroundColor: Colors.transparent,
@@ -171,30 +174,16 @@ class ProfessionalDetailScreen extends StatelessWidget {
   }
 
   Widget _buildInfoSection(BuildContext context, String title, List<Widget> items, bool isDark) {
-    return Container(
+    return AdaptiveCard(
       margin: const EdgeInsets.only(bottom: 8),
-      padding: const EdgeInsets.all(20),
-      decoration: BoxDecoration(
-        color: isDark ? Colors.grey[900] : Colors.white,
-        borderRadius: BorderRadius.circular(16),
-        boxShadow: [
-          if (!isDark)
-            BoxShadow(
-              color: Colors.grey.withOpacity(0.08),
-              spreadRadius: 1,
-              blurRadius: 10,
-              offset: const Offset(0, 2),
-            ),
-        ],
-      ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(
+          AdaptiveText(
             title,
             style: Theme.of(context).textTheme.titleMedium?.copyWith(
               fontWeight: FontWeight.bold,
-              color: isDark ? Colors.white : AppTheme.textColorPrimary,
+              color: isDark ? AppTheme.darkTextColorPrimary : AppTheme.textColorPrimary,
             ),
           ),
           const SizedBox(height: 16),
@@ -210,26 +199,26 @@ class ProfessionalDetailScreen extends StatelessWidget {
       padding: const EdgeInsets.only(bottom: 12),
       child: Row(
         children: [
-          Icon(icon, color: Theme.of(context).colorScheme.primary, size: 22),
+          Icon(icon, color: isDark ? AppTheme.darkPrimaryColor : AppTheme.primaryColor, size: 22),
           const SizedBox(width: 12),
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(
+                AdaptiveText(
                   label,
                   style: TextStyle(
                     fontSize: 12,
-                    color: isDark ? Colors.grey[400] : AppTheme.textColorSecondary,
+                    color: isDark ? AppTheme.darkTextColorSecondary : AppTheme.textColorSecondary,
                     fontWeight: FontWeight.w500,
                   ),
                 ),
                 const SizedBox(height: 2),
-                Text(
+                AdaptiveText(
                   value,
                   style: TextStyle(
                     fontSize: 16,
-                    color: isDark ? Colors.white : AppTheme.textColorPrimary,
+                    color: isDark ? AppTheme.darkTextColorPrimary : AppTheme.textColorPrimary,
                     fontWeight: FontWeight.w600,
                   ),
                 ),

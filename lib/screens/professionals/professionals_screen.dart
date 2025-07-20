@@ -3,6 +3,8 @@ import 'package:vaciniciapp/data/mock_data.dart';
 import 'package:vaciniciapp/models/usuario.dart';
 import 'package:vaciniciapp/routes/app_routes.dart';
 import 'package:vaciniciapp/theme/app_theme.dart';
+import 'package:vaciniciapp/widgets/adaptive_card.dart';
+import 'package:vaciniciapp/widgets/responsive_widget.dart';
 
 class ProfessionalsScreen extends StatelessWidget {
   const ProfessionalsScreen({super.key});
@@ -13,6 +15,7 @@ class ProfessionalsScreen extends StatelessWidget {
     final isDark = theme.brightness == Brightness.dark;
 
     return Scaffold(
+      backgroundColor: isDark ? AppTheme.darkBackgroundColor : AppTheme.backgroundColor,
       appBar: AppBar(
         title: const Text('Profissionais de Saúde'),
         backgroundColor: Colors.transparent,
@@ -20,7 +23,6 @@ class ProfessionalsScreen extends StatelessWidget {
         centerTitle: true,
       ),
       body: Container(
-        color: isDark ? Colors.grey[900] : Colors.grey[100],
         child: SingleChildScrollView(
           padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 24),
           child: Center(
@@ -86,22 +88,16 @@ class ProfessionalsScreen extends StatelessWidget {
     bool isDark,
     ThemeData theme,
   ) {
-    return Material(
-      color: isDark ? Colors.grey[850] : Colors.white,
-      borderRadius: BorderRadius.circular(18),
-      elevation: isDark ? 0 : 2,
-      child: InkWell(
-        onTap: () {
-          Navigator.pushNamed(
-            context,
-            AppRoutes.professionalDetail,
-            arguments: professional,
-          );
-        },
-        borderRadius: BorderRadius.circular(18),
-        child: Padding(
-          padding: const EdgeInsets.symmetric(vertical: 18, horizontal: 18),
-          child: Row(
+    return AdaptiveCard(
+      margin: EdgeInsets.zero,
+      onTap: () {
+        Navigator.pushNamed(
+          context,
+          AppRoutes.professionalDetail,
+          arguments: professional,
+        );
+      },
+      child: Row(
             children: [
               Container(
                 decoration: BoxDecoration(
@@ -132,18 +128,18 @@ class ProfessionalsScreen extends StatelessWidget {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text(
+                    AdaptiveText(
                       professional.nomeCompleto,
                       style: theme.textTheme.titleMedium?.copyWith(
                         fontWeight: FontWeight.bold,
-                        color: isDark ? Colors.white : AppTheme.textColorPrimary,
+                        color: isDark ? AppTheme.darkTextColorPrimary : AppTheme.textColorPrimary,
                       ),
                     ),
                     const SizedBox(height: 4),
-                    Text(
+                    AdaptiveText(
                       professional.cargo ?? 'Profissional de Saúde',
                       style: theme.textTheme.bodyMedium?.copyWith(
-                        color: isDark ? Colors.grey[300] : AppTheme.textColorSecondary,
+                        color: isDark ? AppTheme.darkTextColorSecondary : AppTheme.textColorSecondary,
                       ),
                     ),
                     const SizedBox(height: 10),
@@ -179,8 +175,6 @@ class ProfessionalsScreen extends StatelessWidget {
               ),
             ],
           ),
-        ),
-      ),
     );
   }
 }
