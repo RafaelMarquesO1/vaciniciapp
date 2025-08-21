@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:vaciniciapp/screens/home/home_screen.dart';
 import 'package:vaciniciapp/theme/app_theme.dart';
-import 'package:vaciniciapp/data/mock_data.dart';
 import 'package:vaciniciapp/routes/app_routes.dart';
 import 'package:vaciniciapp/widgets/adaptive_card.dart';
 import 'package:vaciniciapp/widgets/responsive_widget.dart';
+import 'package:vaciniciapp/services/api_service.dart';
 
 class MainLayout extends StatefulWidget {
   const MainLayout({super.key});
@@ -287,8 +287,34 @@ class _ScheduleScreen extends StatelessWidget {
   }
 }
 
-class _ProfileScreen extends StatelessWidget {
+class _ProfileScreen extends StatefulWidget {
   const _ProfileScreen();
+
+  @override
+  State<_ProfileScreen> createState() => _ProfileScreenState();
+}
+
+class _ProfileScreenState extends State<_ProfileScreen> {
+  Map<String, dynamic>? currentUser;
+  bool _isLoading = true;
+
+  @override
+  void initState() {
+    super.initState();
+    _loadCurrentUser();
+  }
+
+  Future<void> _loadCurrentUser() async {
+    try {
+      final user = await ApiService.getCurrentUser();
+      setState(() {
+        currentUser = user;
+        _isLoading = false;
+      });
+    } catch (e) {
+      setState(() => _isLoading = false);
+    }
+  }
 
   void _showLogoutDialog(BuildContext context) {
     showDialog(
@@ -302,9 +328,12 @@ class _ProfileScreen extends StatelessWidget {
             child: const Text('Cancelar'),
           ),
           TextButton(
-            onPressed: () {
+            onPressed: () async {
               Navigator.pop(context);
-              Navigator.of(context).pushReplacementNamed(AppRoutes.login);
+              await ApiService.logout();
+              if (mounted) {
+                Navigator.of(context).pushReplacementNamed(AppRoutes.login);
+              }
             },
             child: const Text('Sair'),
           ),
@@ -316,7 +345,32 @@ class _ProfileScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
-    final user = MockData.loggedInUser;
+    
+    if (_isLoading) {
+      return const Scaffold(
+        body: Center(child: CircularProgressIndicator()),
+      );
+    }
+    
+    if (currentUser == null) {
+      return Scaffold(
+        body: Center(
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              const Icon(Icons.error_outline, size: 64, color: Colors.red),
+              const SizedBox(height: 16),
+              const Text('Erro ao carregar perfil'),
+              const SizedBox(height: 16),
+              ElevatedButton(
+                onPressed: () => Navigator.of(context).pushReplacementNamed(AppRoutes.login),
+                child: const Text('Fazer Login'),
+              ),
+            ],
+          ),
+        ),
+      );
+    }
     
     return Scaffold(
       appBar: AppBar(
@@ -349,7 +403,7 @@ class _ProfileScreen extends StatelessWidget {
                   ),
                   const SizedBox(height: 16),
                   AdaptiveText(
-                    user.nomeCompleto,
+                    currentUser!['nomeCompleto'] ?? 'Usuário',
                     style: Theme.of(context).textTheme.titleLarge?.copyWith(
                       fontWeight: FontWeight.bold,
                       color: isDark ? AppTheme.darkTextColorPrimary : AppTheme.textColorPrimary,
@@ -357,9 +411,25 @@ class _ProfileScreen extends StatelessWidget {
                   ),
                   const SizedBox(height: 8),
                   AdaptiveText(
-                    'CPF: ${user.cpf}',
+                    currentUser!['email'] ?? '',
                     style: Theme.of(context).textTheme.bodyMedium?.copyWith(
                       color: isDark ? AppTheme.darkTextColorSecondary : AppTheme.textColorSecondary,
+                    ),
+                  ),
+                  const SizedBox(height: 4),
+                  Container(
+                    padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
+                    decoration: BoxDecoration(
+                      color: (isDark ? AppTheme.darkPrimaryColor : AppTheme.primaryColor).withOpacity(0.1),
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                    child: Text(
+                      currentUser!['tipoUsuario'] == 'Funcionario' ? 'Funcionário' : 'Paciente',
+                      style: TextStyle(
+                        color: isDark ? AppTheme.darkPrimaryColor : AppTheme.primaryColor,
+                        fontSize: 12,
+                        fontWeight: FontWeight.w600,
+                      ),
                     ),
                   ),
                 ],

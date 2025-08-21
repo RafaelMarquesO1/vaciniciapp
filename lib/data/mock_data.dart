@@ -3,7 +3,7 @@ import 'package:vaciniciapp/models/usuario.dart';
 
 class MockData {
   static final Usuario loggedInUser = Usuario(
-    usuarioID: 1,
+    id: 1,
     nomeCompleto: 'James Moraes',
     cpf: '111.222.333-44',
     dataNascimento: DateTime(1992, 8, 25),
@@ -14,7 +14,7 @@ class MockData {
 
   static final List<Usuario> enfermeiros = [
     Usuario(
-      usuarioID: 101, 
+      id: 101, 
       nomeCompleto: 'Enfermeira Maria Silva', 
       cpf: '101.101.101-01', 
       tipoUsuario: 'Funcionario', 
@@ -23,7 +23,7 @@ class MockData {
       telefone: '(11) 98765-4321',
     ),
     Usuario(
-      usuarioID: 102, 
+      id: 102, 
       nomeCompleto: 'Enfermeira Stephanie Santos', 
       cpf: '102.102.102-02', 
       tipoUsuario: 'Funcionario', 
@@ -34,11 +34,11 @@ class MockData {
   ];
   
   static final List<HistoricoVacina> historicoDeVacinas = [
-    HistoricoVacina(historicoID: 1, pacienteID: 1, funcionarioID: 102, nomeVacina: 'BCG', dose: 'Dose Única', dataAplicacao: DateTime(1992, 8, 25), lote: 'BCG92A', nomeAplicador: 'Enfermeira Stephanie', descricaoVacina: 'A vacina BCG (Bacilo de Calmette e Guérin) é indicada para prevenir as formas graves de Tuberculose.'),
-    HistoricoVacina(historicoID: 2, pacienteID: 1, funcionarioID: 101, nomeVacina: 'Febre Amarela', dose: 'Dose Única', dataAplicacao: DateTime(2010, 3, 15), lote: 'FA10B', nomeAplicador: 'Enfermeira Maria'),
-    HistoricoVacina(historicoID: 3, pacienteID: 1, funcionarioID: 101, nomeVacina: 'Influenza', dose: 'Dose Anual', dataAplicacao: DateTime(2024, 4, 22), lote: 'FLU24C', nomeAplicador: 'Enfermeira Maria'),
-    HistoricoVacina(historicoID: 4, pacienteID: 1, funcionarioID: 102, nomeVacina: 'COVID-19', dose: '1ª Dose', dataAplicacao: DateTime(2022, 1, 18), lote: 'COV22D', nomeAplicador: 'Enfermeira Stephanie'),
-    HistoricoVacina(historicoID: 5, pacienteID: 1, funcionarioID: 102, nomeVacina: 'COVID-19', dose: '2ª Dose', dataAplicacao: DateTime(2022, 4, 18), lote: 'COV22E', nomeAplicador: 'Enfermeira Stephanie'),
-    HistoricoVacina(historicoID: 6, pacienteID: 1, funcionarioID: 101, nomeVacina: 'Hepatite A', dose: 'Dose Única', dataAplicacao: DateTime(1993, 11, 5), lote: 'HEPA93F', nomeAplicador: 'Enfermeira Maria'),
+    HistoricoVacina(id: 1, pacienteId: 1, nomePaciente: 'James Moraes', funcionarioId: 102, nomeFuncionario: 'Enfermeira Stephanie', vacinaId: 1, nomeVacina: 'BCG', dose: 'Dose Única', dataAplicacao: DateTime(1992, 8, 25), lote: 'BCG92A'),
+    HistoricoVacina(id: 2, pacienteId: 1, nomePaciente: 'James Moraes', funcionarioId: 101, nomeFuncionario: 'Enfermeira Maria', vacinaId: 2, nomeVacina: 'Febre Amarela', dose: 'Dose Única', dataAplicacao: DateTime(2010, 3, 15), lote: 'FA10B'),
+    HistoricoVacina(id: 3, pacienteId: 1, nomePaciente: 'James Moraes', funcionarioId: 101, nomeFuncionario: 'Enfermeira Maria', vacinaId: 3, nomeVacina: 'Influenza', dose: 'Dose Anual', dataAplicacao: DateTime(2024, 4, 22), lote: 'FLU24C'),
+    HistoricoVacina(id: 4, pacienteId: 1, nomePaciente: 'James Moraes', funcionarioId: 102, nomeFuncionario: 'Enfermeira Stephanie', vacinaId: 4, nomeVacina: 'COVID-19', dose: '1ª Dose', dataAplicacao: DateTime(2022, 1, 18), lote: 'COV22D'),
+    HistoricoVacina(id: 5, pacienteId: 1, nomePaciente: 'James Moraes', funcionarioId: 102, nomeFuncionario: 'Enfermeira Stephanie', vacinaId: 4, nomeVacina: 'COVID-19', dose: '2ª Dose', dataAplicacao: DateTime(2022, 4, 18), lote: 'COV22E'),
+    HistoricoVacina(id: 6, pacienteId: 1, nomePaciente: 'James Moraes', funcionarioId: 101, nomeFuncionario: 'Enfermeira Maria', vacinaId: 5, nomeVacina: 'Hepatite A', dose: 'Dose Única', dataAplicacao: DateTime(1993, 11, 5), lote: 'HEPA93F'),
   ];
 }

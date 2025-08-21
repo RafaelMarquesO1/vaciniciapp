@@ -3,6 +3,7 @@ import 'package:intl/intl.dart';
 import 'package:vaciniciapp/theme/app_theme.dart';
 import 'package:vaciniciapp/widgets/responsive_widget.dart';
 import 'package:vaciniciapp/widgets/adaptive_card.dart';
+import 'package:vaciniciapp/services/api_service.dart';
 
 class ScheduleScreen extends StatefulWidget {
   const ScheduleScreen({super.key});
@@ -14,50 +15,133 @@ class ScheduleScreen extends StatefulWidget {
 class _ScheduleScreenState extends State<ScheduleScreen> {
   DateTime selectedDate = DateTime.now().add(const Duration(days: 1));
   TimeOfDay selectedTime = const TimeOfDay(hour: 9, minute: 0);
-  String selectedVaccine = 'COVID-19';
-  String selectedLocation = 'UBS Centro';
+  String selectedVaccine = '';
+  String selectedLocation = '';
   bool _isLoading = false;
-
-  final List<Map<String, dynamic>> vaccines = [
-    {'name': 'COVID-19', 'icon': Icons.coronavirus, 'color': Colors.red},
-    {'name': 'Gripe', 'icon': Icons.sick, 'color': Colors.orange},
-    {'name': 'Hepatite B', 'icon': Icons.health_and_safety, 'color': Colors.green},
-    {'name': 'Tétano', 'icon': Icons.medical_services, 'color': Colors.blue},
-  ];
+  bool _isLoadingData = true;
   
-  final List<Map<String, dynamic>> locations = [
-    {'name': 'UBS Centro', 'address': 'Rua das Flores, 123', 'distance': '0.5 km'},
-    {'name': 'UBS Norte', 'address': 'Av. Principal, 456', 'distance': '1.2 km'},
-    {'name': 'UBS Sul', 'address': 'Rua do Sul, 789', 'distance': '2.1 km'},
-    {'name': 'Hospital Municipal', 'address': 'Praça Central, 100', 'distance': '3.0 km'},
-  ];
+  List<Map<String, dynamic>> vaccines = [];
+  List<Map<String, dynamic>> locations = [];
+  
+  @override
+  void initState() {
+    super.initState();
+    _loadData();
+  }
+  
+  Future<void> _loadData() async {
+    try {
+      final [vacinasData, locaisData] = await Future.wait([
+        ApiService.getVacinas(),
+        ApiService.getLocaisVacinacao(),
+      ]);
+      
+      setState(() {
+        vaccines = (vacinasData as List).map((v) => {
+          'id': v['id'],
+          'name': v['nome'],
+          'icon': _getVaccineIcon(v['nome']),
+          'color': _getVaccineColor(v['categoria']),
+        }).toList();
+        
+        locations = (locaisData as List).map((l) => {
+          'id': l['id'],
+          'name': l['nome'],
+          'address': '${l['endereco']}, ${l['cidade']}',
+          'distance': '${(l['id'] * 0.5).toStringAsFixed(1)} km',
+        }).toList();
+        
+        if (vaccines.isNotEmpty) selectedVaccine = vaccines.first['name'];
+        if (locations.isNotEmpty) selectedLocation = locations.first['name'];
+        
+        _isLoadingData = false;
+      });
+    } catch (e) {
+      setState(() => _isLoadingData = false);
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Erro ao carregar dados: $e')),
+        );
+      }
+    }
+  }
+  
+  IconData _getVaccineIcon(String nome) {
+    if (nome.toLowerCase().contains('covid')) return Icons.coronavirus;
+    if (nome.toLowerCase().contains('gripe') || nome.toLowerCase().contains('influenza')) return Icons.sick;
+    if (nome.toLowerCase().contains('hepatite')) return Icons.health_and_safety;
+    return Icons.vaccines;
+  }
+  
+  Color _getVaccineColor(String categoria) {
+    switch (categoria.toLowerCase()) {
+      case 'obrigatoria': return Colors.red;
+      case 'opcional': return Colors.blue;
+      case 'sazonal': return Colors.orange;
+      default: return Colors.green;
+    }
+  }
 
   Future<void> _handleSchedule() async {
-    setState(() => _isLoading = true);
-    await Future.delayed(const Duration(seconds: 2));
-    
-    if (mounted) {
+    if (selectedVaccine.isEmpty || selectedLocation.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Row(
-            children: [
-              const Icon(Icons.check_circle, color: Colors.white),
-              const SizedBox(width: 12),
-              Expanded(
-                child: Text(
-                  'Agendamento confirmado para ${DateFormat('dd/MM/yyyy', 'pt_BR').format(selectedDate)} às ${selectedTime.format(context)}',
-                ),
-              ),
-            ],
-          ),
-          backgroundColor: Theme.of(context).brightness == Brightness.dark ? AppTheme.darkPrimaryColor : Colors.green,
-          behavior: SnackBarBehavior.floating,
-          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-        ),
+        const SnackBar(content: Text('Selecione uma vacina e um local')),
       );
-      Navigator.pop(context);
+      return;
     }
-    setState(() => _isLoading = false);
+    
+    setState(() => _isLoading = true);
+    
+    try {
+      final user = await ApiService.getCurrentUser();
+      if (user == null) throw Exception('Usuário não encontrado');
+      
+      final selectedVaccineData = vaccines.firstWhere((v) => v['name'] == selectedVaccine);
+      final selectedLocationData = locations.firstWhere((l) => l['name'] == selectedLocation);
+      
+      final agendamentoData = {
+        'pacienteId': user['id'],
+        'vacinaId': selectedVaccineData['id'],
+        'localId': selectedLocationData['id'],
+        'dataAgendamento': '${DateFormat('yyyy-MM-dd').format(selectedDate)}T${selectedTime.hour.toString().padLeft(2, '0')}:${selectedTime.minute.toString().padLeft(2, '0')}:00',
+        'status': 'Agendado',
+      };
+      
+      // Salvar agendamento na API
+      await ApiService.createAgendamento(agendamentoData);
+      
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Row(
+              children: [
+                const Icon(Icons.check_circle, color: Colors.white),
+                const SizedBox(width: 12),
+                Expanded(
+                  child: Text(
+                    'Agendamento confirmado para ${DateFormat('dd/MM/yyyy', 'pt_BR').format(selectedDate)} às ${selectedTime.format(context)}',
+                  ),
+                ),
+              ],
+            ),
+            backgroundColor: Theme.of(context).brightness == Brightness.dark ? AppTheme.darkPrimaryColor : Colors.green,
+            behavior: SnackBarBehavior.floating,
+            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+          ),
+        );
+        Navigator.pop(context);
+      }
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Erro ao agendar: $e')),
+        );
+      }
+    } finally {
+      if (mounted) {
+        setState(() => _isLoading = false);
+      }
+    }
   }
 
   @override
@@ -72,7 +156,9 @@ class _ScheduleScreenState extends State<ScheduleScreen> {
         elevation: 0,
         centerTitle: true,
       ),
-      body: SingleChildScrollView(
+      body: _isLoadingData
+          ? const Center(child: CircularProgressIndicator())
+          : SingleChildScrollView(
         padding: context.responsivePadding,
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,

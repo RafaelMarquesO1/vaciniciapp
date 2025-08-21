@@ -15,17 +15,21 @@ class AppTheme {
   static const Color textColorSecondary = Color(0xFF757575);
   static const Color textColorTertiary = Color(0xFF9E9E9E);
   
-  // Cores principais - Tema Escuro
-  static const Color darkPrimaryColor = Color(0xFF4CAF50);
-  static const Color darkBackgroundColor = Color(0xFF121212);
-  static const Color darkSurfaceColor = Color(0xFF1E1E1E);
-  static const Color darkCardColor = Color(0xFF2D2D2D);
-  static const Color darkElevatedColor = Color(0xFF2E2E2E);
+  // Cores principais - Tema Escuro (Melhorado)
+  static const Color darkPrimaryColor = Color(0xFF66BB6A); // Verde mais vibrante
+  static const Color darkBackgroundColor = Color(0xFF0F0F0F); // Preto mais profundo
+  static const Color darkSurfaceColor = Color(0xFF1A1A1A); // Cinza escuro mais suave
+  static const Color darkCardColor = Color(0xFF242424); // Cards com melhor contraste
+  static const Color darkElevatedColor = Color(0xFF2A2A2A); // Elementos elevados
   
-  // Cores de texto - Tema Escuro
-  static const Color darkTextColorPrimary = Color(0xFFFFFFFF);
-  static const Color darkTextColorSecondary = Color(0xFFB0B0B0);
-  static const Color darkTextColorTertiary = Color(0xFF808080);
+  // Cores de texto - Tema Escuro (Melhorado)
+  static const Color darkTextColorPrimary = Color(0xFFE8E8E8); // Branco mais suave
+  static const Color darkTextColorSecondary = Color(0xFFB8B8B8); // Cinza claro
+  static const Color darkTextColorTertiary = Color(0xFF888888); // Cinza médio
+  
+  // Cores de acento para tema escuro
+  static const Color darkAccentColor = Color(0xFF81C784); // Verde acento
+  static const Color darkSecondaryColor = Color(0xFF4DB6AC); // Verde-azulado
   
   // Cores adicionais
   static const Color successColor = Color(0xFF4CAF50);
@@ -312,18 +316,18 @@ class AppTheme {
       ),
     ),
     
-    // Campos de entrada
+    // Campos de entrada (Melhorado)
     inputDecorationTheme: InputDecorationTheme(
       filled: true,
       fillColor: darkElevatedColor,
       contentPadding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
       border: OutlineInputBorder(
         borderRadius: BorderRadius.circular(16),
-        borderSide: BorderSide(color: darkTextColorTertiary.withOpacity(0.3)),
+        borderSide: BorderSide(color: darkTextColorTertiary.withOpacity(0.4)),
       ),
       enabledBorder: OutlineInputBorder(
         borderRadius: BorderRadius.circular(16),
-        borderSide: BorderSide(color: darkTextColorTertiary.withOpacity(0.3)),
+        borderSide: BorderSide(color: darkTextColorTertiary.withOpacity(0.4)),
       ),
       focusedBorder: OutlineInputBorder(
         borderRadius: BorderRadius.circular(16),
@@ -337,7 +341,7 @@ class AppTheme {
         borderRadius: BorderRadius.circular(16),
         borderSide: const BorderSide(color: errorColor, width: 2),
       ),
-      hintStyle: const TextStyle(color: darkTextColorTertiary),
+      hintStyle: TextStyle(color: darkTextColorTertiary.withOpacity(0.8)),
       labelStyle: const TextStyle(color: darkTextColorSecondary),
       floatingLabelStyle: const TextStyle(color: darkPrimaryColor),
     ),
@@ -357,13 +361,14 @@ class AppTheme {
       actionsIconTheme: IconThemeData(color: darkTextColorPrimary),
     ),
     
-    // Cards
+    // Cards (Melhorado)
     cardTheme: CardThemeData(
       color: darkCardColor,
-      elevation: 8,
-      shadowColor: Colors.black.withOpacity(0.4),
+      elevation: 6,
+      shadowColor: Colors.black.withOpacity(0.5),
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(20),
+        side: BorderSide(color: darkTextColorTertiary.withOpacity(0.1), width: 0.5),
       ),
       margin: const EdgeInsets.all(8),
     ),
@@ -397,9 +402,14 @@ class AppTheme {
   
   static List<BoxShadow> get darkCardShadow => [
     BoxShadow(
-      color: Colors.black.withOpacity(0.3),
-      blurRadius: 15,
-      offset: const Offset(0, 6),
+      color: Colors.black.withOpacity(0.4),
+      blurRadius: 20,
+      offset: const Offset(0, 8),
+    ),
+    BoxShadow(
+      color: Colors.black.withOpacity(0.2),
+      blurRadius: 5,
+      offset: const Offset(0, 2),
     ),
   ];
   

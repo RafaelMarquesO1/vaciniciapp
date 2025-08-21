@@ -34,11 +34,20 @@ class AdaptiveCard extends StatelessWidget {
       decoration: BoxDecoration(
         color: color ?? defaultColor,
         borderRadius: borderRadius ?? BorderRadius.circular(20),
-        boxShadow: [
+        boxShadow: isDark ? [
           BoxShadow(
-            color: isDark 
-                ? Colors.black.withOpacity(0.4)
-                : AppTheme.primaryColor.withOpacity(0.1),
+            color: Colors.black.withOpacity(0.5),
+            blurRadius: (elevation ?? defaultElevation) * 1.5,
+            offset: Offset(0, (elevation ?? defaultElevation) / 1.5),
+          ),
+          BoxShadow(
+            color: Colors.black.withOpacity(0.2),
+            blurRadius: (elevation ?? defaultElevation) / 2,
+            offset: const Offset(0, 1),
+          ),
+        ] : [
+          BoxShadow(
+            color: AppTheme.primaryColor.withOpacity(0.1),
             blurRadius: elevation ?? defaultElevation,
             offset: Offset(0, (elevation ?? defaultElevation) / 2),
           ),
@@ -46,9 +55,9 @@ class AdaptiveCard extends StatelessWidget {
         border: showBorder
             ? Border.all(
                 color: isDark
-                    ? AppTheme.darkPrimaryColor.withOpacity(0.2)
+                    ? AppTheme.darkTextColorTertiary.withOpacity(0.3)
                     : AppTheme.primaryColor.withOpacity(0.1),
-                width: 1,
+                width: isDark ? 0.5 : 1,
               )
             : null,
       ),
@@ -95,7 +104,7 @@ class GradientCard extends StatelessWidget {
   Widget build(BuildContext context) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
     final defaultGradient = isDark
-        ? [AppTheme.darkCardColor, AppTheme.darkSurfaceColor]
+        ? [AppTheme.darkCardColor, AppTheme.darkElevatedColor]
         : [Colors.white, AppTheme.primaryColor.withOpacity(0.02)];
 
     Widget card = Container(
@@ -107,13 +116,22 @@ class GradientCard extends StatelessWidget {
           colors: gradientColors ?? defaultGradient,
         ),
         borderRadius: borderRadius ?? BorderRadius.circular(20),
-        boxShadow: [
+        boxShadow: isDark ? [
           BoxShadow(
-            color: isDark
-                ? Colors.black.withOpacity(0.3)
-                : AppTheme.primaryColor.withOpacity(0.15),
-            blurRadius: isDark ? 15 : 20,
-            offset: Offset(0, isDark ? 6 : 8),
+            color: Colors.black.withOpacity(0.6),
+            blurRadius: 20,
+            offset: const Offset(0, 8),
+          ),
+          BoxShadow(
+            color: Colors.black.withOpacity(0.3),
+            blurRadius: 8,
+            offset: const Offset(0, 3),
+          ),
+        ] : [
+          BoxShadow(
+            color: AppTheme.primaryColor.withOpacity(0.15),
+            blurRadius: 20,
+            offset: const Offset(0, 8),
           ),
         ],
       ),

@@ -135,7 +135,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
           _SettingsTile(
             title: 'Alterar Senha',
             subtitle: 'Modificar sua senha de acesso',
-            trailing: const Icon(Icons.chevron_right, color: AppTheme.textColorSecondary),
+            trailing: Icon(Icons.chevron_right, color: isDark ? AppTheme.darkTextColorSecondary : AppTheme.textColorSecondary),
             onTap: () {},
           ),
           const SizedBox(height: 32),
@@ -148,7 +148,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
           _SettingsTile(
             title: 'Profissionais de Saúde',
             subtitle: 'Ver equipe médica disponível',
-            trailing: const Icon(Icons.chevron_right, color: AppTheme.textColorSecondary),
+            trailing: Icon(Icons.chevron_right, color: isDark ? AppTheme.darkTextColorSecondary : AppTheme.textColorSecondary),
             onTap: () => Navigator.of(context).pushNamed(AppRoutes.professionals),
           ),
           const SizedBox(height: 32),
@@ -161,13 +161,13 @@ class _SettingsScreenState extends State<SettingsScreen> {
           _SettingsTile(
             title: 'Backup dos Dados',
             subtitle: 'Fazer backup na nuvem',
-            trailing: const Icon(Icons.chevron_right, color: AppTheme.textColorSecondary),
+            trailing: Icon(Icons.chevron_right, color: isDark ? AppTheme.darkTextColorSecondary : AppTheme.textColorSecondary),
             onTap: () {},
           ),
           _SettingsTile(
             title: 'Exportar Dados',
             subtitle: 'Baixar seus dados em PDF',
-            trailing: const Icon(Icons.chevron_right, color: AppTheme.textColorSecondary),
+            trailing: Icon(Icons.chevron_right, color: isDark ? AppTheme.darkTextColorSecondary : AppTheme.textColorSecondary),
             onTap: () {},
           ),
           const SizedBox(height: 32),
@@ -179,19 +179,19 @@ class _SettingsScreenState extends State<SettingsScreen> {
           const SizedBox(height: 16),
           _SettingsTile(
             title: 'Versão do App',
-            subtitle: '7.0', // Versão do App
+            subtitle: '9.0', // Versão do App
             trailing: const SizedBox(),
           ),
           _SettingsTile(
             title: 'Termos de Uso',
             subtitle: 'Ler termos e condições',
-            trailing: const Icon(Icons.chevron_right, color: AppTheme.textColorSecondary),
+            trailing: Icon(Icons.chevron_right, color: isDark ? AppTheme.darkTextColorSecondary : AppTheme.textColorSecondary),
             onTap: () => Navigator.of(context).pushNamed(AppRoutes.terms),
           ),
           _SettingsTile(
             title: 'Política de Privacidade',
             subtitle: 'Como tratamos seus dados',
-            trailing: const Icon(Icons.chevron_right, color: AppTheme.textColorSecondary),
+            trailing: Icon(Icons.chevron_right, color: isDark ? AppTheme.darkTextColorSecondary : AppTheme.textColorSecondary),
             onTap: () {},
           ),
           ],

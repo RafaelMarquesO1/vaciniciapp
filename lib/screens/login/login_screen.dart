@@ -5,6 +5,7 @@ import 'package:vaciniciapp/routes/app_routes.dart';
 import 'package:vaciniciapp/theme/app_theme.dart';
 import 'package:vaciniciapp/widgets/responsive_widget.dart';
 import 'package:vaciniciapp/widgets/adaptive_card.dart';
+import 'package:vaciniciapp/services/api_service.dart';
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
@@ -15,31 +16,25 @@ class LoginScreen extends StatefulWidget {
 
 class _LoginScreenState extends State<LoginScreen> {
   final _formKey = GlobalKey<FormState>();
-  final _cpfController = TextEditingController();
+  final _emailController = TextEditingController();
   final _passwordController = TextEditingController();
   bool _obscurePassword = true;
   bool _isLoading = false;
-  
-  // Formatação dos pontinhos do CPF
-  final _cpfFormatter = MaskTextInputFormatter(
-    mask: '###.###.###-##',
-    filter: {"#": RegExp(r'[0-9]')},
-  );
+  String? _errorMessage;
 
   @override
   void dispose() {
-    _cpfController.dispose();
+    _emailController.dispose();
     _passwordController.dispose();
     super.dispose();
   }
 
-  String? _validateCPF(String? value) {
+  String? _validateEmail(String? value) {
     if (value == null || value.isEmpty) {
-      return 'CPF é obrigatório';
+      return 'Email é obrigatório';
     }
-    String cleanCpf = value.replaceAll(RegExp(r'[^0-9]'), '');
-    if (cleanCpf.length != 11) {
-      return 'CPF deve ter 11 dígitos';
+    if (!RegExp(r'^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$').hasMatch(value)) {
+      return 'Email inválido';
     }
     return null;
   }
@@ -57,13 +52,25 @@ class _LoginScreenState extends State<LoginScreen> {
   Future<void> _handleLogin() async {
     if (!_formKey.currentState!.validate()) return;
     
-    setState(() => _isLoading = true);
+    setState(() {
+      _isLoading = true;
+      _errorMessage = null;
+    });
     
-    // Simulação de login
-    await Future.delayed(const Duration(seconds: 1));
-    
-    if (mounted) {
-      Navigator.of(context).pushReplacementNamed(AppRoutes.main);
+    try {
+      await ApiService.login(_emailController.text, _passwordController.text);
+      
+      if (mounted) {
+        Navigator.of(context).pushReplacementNamed(AppRoutes.main);
+      }
+    } catch (e) {
+      setState(() {
+        _errorMessage = e.toString().replaceAll('Exception: ', '');
+      });
+    } finally {
+      if (mounted) {
+        setState(() => _isLoading = false);
+      }
     }
   }
 
@@ -150,17 +157,40 @@ class _LoginScreenState extends State<LoginScreen> {
                             ),
                           ),
                 
-                // Campo CPF
-                TextFormField(
-                  controller: _cpfController,
-                  decoration: const InputDecoration(
-                    labelText: 'CPF',
-                    hintText: '000.000.000-00',
-                    prefixIcon: Icon(Icons.person_outline),
+                // Mensagem de erro
+                if (_errorMessage != null)
+                  Container(
+                    padding: const EdgeInsets.all(12),
+                    margin: const EdgeInsets.only(bottom: 16),
+                    decoration: BoxDecoration(
+                      color: Colors.red.withOpacity(0.1),
+                      borderRadius: BorderRadius.circular(8),
+                      border: Border.all(color: Colors.red.withOpacity(0.3)),
+                    ),
+                    child: Row(
+                      children: [
+                        Icon(Icons.error_outline, color: Colors.red, size: 20),
+                        const SizedBox(width: 8),
+                        Expanded(
+                          child: Text(
+                            _errorMessage!,
+                            style: TextStyle(color: Colors.red, fontSize: 14),
+                          ),
+                        ),
+                      ],
+                    ),
                   ),
-                  keyboardType: TextInputType.number,
-                  inputFormatters: [_cpfFormatter],
-                  validator: _validateCPF,
+                
+                // Campo Email
+                TextFormField(
+                  controller: _emailController,
+                  decoration: const InputDecoration(
+                    labelText: 'Email',
+                    hintText: 'seu@email.com',
+                    prefixIcon: Icon(Icons.email_outlined),
+                  ),
+                  keyboardType: TextInputType.emailAddress,
+                  validator: _validateEmail,
                 ),
                 
                 const SizedBox(height: 16),

@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
-import 'package:vaciniciapp/data/mock_data.dart';
 import 'package:vaciniciapp/routes/app_routes.dart';
 import 'package:vaciniciapp/theme/app_theme.dart';
 import 'package:vaciniciapp/widgets/theme_toggle_button.dart';
 import 'package:vaciniciapp/widgets/responsive_widget.dart';
 import 'package:vaciniciapp/widgets/adaptive_card.dart';
+import 'package:vaciniciapp/services/api_service.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -15,6 +15,26 @@ class HomeScreen extends StatefulWidget {
 
 class _HomeScreenState extends State<HomeScreen> {
   final _searchController = TextEditingController();
+  Map<String, dynamic>? currentUser;
+  bool _isLoading = true;
+
+  @override
+  void initState() {
+    super.initState();
+    _loadCurrentUser();
+  }
+
+  Future<void> _loadCurrentUser() async {
+    try {
+      final user = await ApiService.getCurrentUser();
+      setState(() {
+        currentUser = user;
+        _isLoading = false;
+      });
+    } catch (e) {
+      setState(() => _isLoading = false);
+    }
+  }
 
   @override
   void dispose() {
@@ -32,7 +52,12 @@ class _HomeScreenState extends State<HomeScreen> {
   @override
   Widget build(BuildContext context) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
-    final nurses = MockData.enfermeiros;
+    
+    if (_isLoading) {
+      return const Scaffold(
+        body: Center(child: CircularProgressIndicator()),
+      );
+    }
 
     return Scaffold(
       body: CustomScrollView(
@@ -97,6 +122,58 @@ class _HomeScreenState extends State<HomeScreen> {
                 
                 const SizedBox(height: 32),
                 
+                // Saudação personalizada
+                if (currentUser != null) ...[
+                  Container(
+                    padding: const EdgeInsets.all(16),
+                    margin: const EdgeInsets.only(bottom: 24),
+                    decoration: BoxDecoration(
+                      gradient: LinearGradient(
+                        colors: isDark
+                            ? [AppTheme.darkPrimaryColor.withOpacity(0.1), AppTheme.darkPrimaryColor.withOpacity(0.05)]
+                            : [AppTheme.primaryColor.withOpacity(0.1), AppTheme.primaryColor.withOpacity(0.05)],
+                      ),
+                      borderRadius: BorderRadius.circular(16),
+                    ),
+                    child: Row(
+                      children: [
+                        CircleAvatar(
+                          radius: 24,
+                          backgroundColor: isDark ? AppTheme.darkPrimaryColor : AppTheme.primaryColor,
+                          child: Text(
+                            currentUser!['nomeCompleto']?.toString().substring(0, 1).toUpperCase() ?? 'U',
+                            style: const TextStyle(
+                              color: Colors.white,
+                              fontWeight: FontWeight.bold,
+                              fontSize: 18,
+                            ),
+                          ),
+                        ),
+                        const SizedBox(width: 16),
+                        Expanded(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                'Olá, ${currentUser!['nomeCompleto']?.toString().split(' ').first ?? 'Usuário'}!',
+                                style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                                  fontWeight: FontWeight.bold,
+                                ),
+                              ),
+                              Text(
+                                currentUser!['tipoUsuario'] == 'Funcionario' ? 'Funcionário' : 'Paciente',
+                                style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                                  color: isDark ? AppTheme.darkTextColorSecondary : AppTheme.textColorSecondary,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ],
+                
                 // Seção de ações rápidas
                 Row(
                   children: [
@@ -136,6 +213,12 @@ class _HomeScreenState extends State<HomeScreen> {
                       onTap: () => Navigator.of(context).pushNamed(AppRoutes.schedule),
                     ),
                     _CategoryCard(
+                      icon: Icons.event_available_outlined,
+                      label: 'Agendamentos',
+                      color: const Color(0xFFFF9800),
+                      onTap: () => Navigator.of(context).pushNamed(AppRoutes.appointments),
+                    ),
+                    _CategoryCard(
                       icon: Icons.analytics_outlined,
                       label: 'Estatísticas',
                       color: const Color(0xFF2196F3),
@@ -146,56 +229,85 @@ class _HomeScreenState extends State<HomeScreen> {
                 
                 const SizedBox(height: 32),
                 
-                // Seção de profissionais
+                // Seção de acesso rápido
                 Row(
                   children: [
                     Icon(
-                      Icons.people_outline,
+                      Icons.star_outline,
                       color: Theme.of(context).brightness == Brightness.dark
                           ? AppTheme.darkPrimaryColor
                           : AppTheme.primaryColor,
                       size: 20,
                     ),
                     const SizedBox(width: 8),
-                    Expanded(
-                      child: Text(
-                        'Profissionais de Saúde',
-                        style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                          fontWeight: FontWeight.bold,
-                        ),
+                    Text(
+                      'Acesso Rápido',
+                      style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                        fontWeight: FontWeight.bold,
                       ),
-                    ),
-                    TextButton(
-                      onPressed: () => Navigator.of(context).pushNamed(AppRoutes.professionals),
-                      child: const Text('Ver todos'),
                     ),
                   ],
                 ),
                 
                 const SizedBox(height: 16),
                 
-                // Lista horizontal de enfermeiros
-                SizedBox(
-                  height: 120,
-                  child: ListView.builder(
-                    scrollDirection: Axis.horizontal,
-                    itemCount: nurses.length,
-                    itemBuilder: (context, index) {
-                      final nurse = nurses[index];
-                      return GestureDetector(
-                        onTap: () => Navigator.pushNamed(
-                          context,
-                          AppRoutes.professionalDetail,
-                          arguments: nurse,
+                // Cards de acesso rápido
+                Row(
+                  children: [
+                    Expanded(
+                      child: GestureDetector(
+                        onTap: () => Navigator.of(context).pushNamed(AppRoutes.professionals),
+                        child: AdaptiveCard(
+                          child: Padding(
+                            padding: const EdgeInsets.all(16),
+                            child: Column(
+                              children: [
+                                Icon(
+                                  Icons.people_outline,
+                                  color: isDark ? AppTheme.darkPrimaryColor : AppTheme.primaryColor,
+                                  size: 32,
+                                ),
+                                const SizedBox(height: 8),
+                                Text(
+                                  'Profissionais',
+                                  style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                                    fontWeight: FontWeight.w600,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
                         ),
-                        child: _ProfessionalCard(
-                          name: nurse.nomeCompleto,
-                          role: nurse.cargo ?? 'Enfermeiro(a)',
-                          isFirst: index == 0,
+                      ),
+                    ),
+                    const SizedBox(width: 12),
+                    Expanded(
+                      child: GestureDetector(
+                        onTap: () => Navigator.of(context).pushNamed(AppRoutes.settings),
+                        child: AdaptiveCard(
+                          child: Padding(
+                            padding: const EdgeInsets.all(16),
+                            child: Column(
+                              children: [
+                                Icon(
+                                  Icons.settings_outlined,
+                                  color: isDark ? AppTheme.darkPrimaryColor : AppTheme.primaryColor,
+                                  size: 32,
+                                ),
+                                const SizedBox(height: 8),
+                                Text(
+                                  'Configurações',
+                                  style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                                    fontWeight: FontWeight.w600,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
                         ),
-                      );
-                    },
-                  ),
+                      ),
+                    ),
+                  ],
                 ),
                 
                 const SizedBox(height: 20),
