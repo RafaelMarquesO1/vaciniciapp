@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:vaciniciapp/data/mock_data.dart';
 import 'package:vaciniciapp/theme/app_theme.dart';
 import 'package:vaciniciapp/widgets/adaptive_card.dart';
 import 'package:vaciniciapp/widgets/responsive_widget.dart';
+import 'package:vaciniciapp/services/api_service.dart';
 
 class EditProfileScreen extends StatefulWidget {
   const EditProfileScreen({super.key});
@@ -17,15 +17,37 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
   late TextEditingController _nameController;
   late TextEditingController _emailController;
   late TextEditingController _phoneController;
+  late TextEditingController _cpfController;
   bool _isLoading = false;
+  bool _isLoadingData = true;
+  Map<String, dynamic>? currentUser;
 
   @override
   void initState() {
     super.initState();
-    final user = MockData.loggedInUser;
-    _nameController = TextEditingController(text: user.nomeCompleto);
-    _emailController = TextEditingController(text: user.email ?? '');
-    _phoneController = TextEditingController(text: user.telefone ?? '');
+    _nameController = TextEditingController();
+    _emailController = TextEditingController();
+    _phoneController = TextEditingController();
+    _cpfController = TextEditingController();
+    _loadUserData();
+  }
+
+  Future<void> _loadUserData() async {
+    try {
+      final user = await ApiService.getCurrentUser();
+      if (user != null) {
+        setState(() {
+          currentUser = user;
+          _nameController.text = user['nomeCompleto'] ?? '';
+          _emailController.text = user['email'] ?? '';
+          _phoneController.text = '';
+          _cpfController.text = '';
+          _isLoadingData = false;
+        });
+      }
+    } catch (e) {
+      setState(() => _isLoadingData = false);
+    }
   }
 
   @override
@@ -33,6 +55,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
     _nameController.dispose();
     _emailController.dispose();
     _phoneController.dispose();
+    _cpfController.dispose();
     super.dispose();
   }
 
@@ -89,7 +112,9 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
           ),
         ],
       ),
-      body: SingleChildScrollView(
+      body: _isLoadingData
+          ? const Center(child: CircularProgressIndicator())
+          : SingleChildScrollView(
         padding: context.responsivePadding,
         child: Form(
           key: _formKey,
@@ -162,7 +187,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
               ),
               const SizedBox(height: 16),
               TextFormField(
-                initialValue: MockData.loggedInUser.cpf,
+                controller: _cpfController,
                 decoration: const InputDecoration(
                   labelText: 'CPF',
                   prefixIcon: Icon(Icons.badge_outlined),

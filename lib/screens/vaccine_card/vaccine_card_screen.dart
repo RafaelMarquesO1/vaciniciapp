@@ -1,11 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
-import 'package:vaciniciapp/data/mock_data.dart';
 import 'package:vaciniciapp/routes/app_routes.dart';
 import 'package:vaciniciapp/theme/app_theme.dart';
 import 'package:vaciniciapp/widgets/animated_fab.dart';
 import 'package:vaciniciapp/widgets/responsive_widget.dart';
 import 'package:vaciniciapp/widgets/adaptive_card.dart';
+import 'package:vaciniciapp/services/api_service.dart';
 
 class VaccineCardScreen extends StatefulWidget {
   const VaccineCardScreen({super.key});
@@ -17,28 +17,78 @@ class VaccineCardScreen extends StatefulWidget {
 class _VaccineCardScreenState extends State<VaccineCardScreen> {
   String _selectedFilter = 'Todas';
   final List<String> _filters = ['Todas', 'Recentes', 'Antigas'];
+  List<dynamic> _vaccines = [];
+  Map<String, dynamic>? _currentUser;
+  bool _isLoading = true;
+
+  @override
+  void initState() {
+    super.initState();
+    _loadData();
+  }
+
+  Future<void> _loadData() async {
+    try {
+      final user = await ApiService.getCurrentUser();
+      if (user != null) {
+        final vaccines = await ApiService.getHistoricoVacinacao(user['id']);
+        setState(() {
+          _currentUser = user;
+          _vaccines = vaccines;
+          _isLoading = false;
+        });
+      }
+    } catch (e) {
+      setState(() => _isLoading = false);
+    }
+  }
 
   List<dynamic> get _filteredVaccines {
-    final vaccines = MockData.historicoDeVacinas;
     switch (_selectedFilter) {
       case 'Recentes':
-        return vaccines.where((v) => 
-          DateTime.now().difference(v.dataAplicacao).inDays <= 365
+        return _vaccines.where((v) => 
+          DateTime.now().difference(DateTime.parse(v['dataAplicacao'])).inDays <= 365
         ).toList();
       case 'Antigas':
-        return vaccines.where((v) => 
-          DateTime.now().difference(v.dataAplicacao).inDays > 365
+        return _vaccines.where((v) => 
+          DateTime.now().difference(DateTime.parse(v['dataAplicacao'])).inDays > 365
         ).toList();
       default:
-        return vaccines;
+        return _vaccines;
     }
   }
 
   @override
   Widget build(BuildContext context) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
+    
+    if (_isLoading) {
+      return const Scaffold(
+        body: Center(child: CircularProgressIndicator()),
+      );
+    }
+    
+    if (_currentUser == null) {
+      return Scaffold(
+        body: Center(
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              const Icon(Icons.error_outline, size: 64, color: Colors.red),
+              const SizedBox(height: 16),
+              const Text('Erro ao carregar dados'),
+              const SizedBox(height: 16),
+              ElevatedButton(
+                onPressed: _loadData,
+                child: const Text('Tentar Novamente'),
+              ),
+            ],
+          ),
+        ),
+      );
+    }
+    
     final vaccines = _filteredVaccines;
-    final user = MockData.loggedInUser;
 
     return Scaffold(
       body: CustomScrollView(
@@ -101,7 +151,7 @@ class _VaccineCardScreenState extends State<VaccineCardScreen> {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         AdaptiveText(
-                          user.nomeCompleto,
+                          _currentUser!['nomeCompleto'] ?? 'Usuário',
                           style: Theme.of(context).textTheme.titleLarge?.copyWith(
                             fontWeight: FontWeight.bold,
                             color: isDark ? AppTheme.darkTextColorPrimary : AppTheme.textColorPrimary,
@@ -109,7 +159,7 @@ class _VaccineCardScreenState extends State<VaccineCardScreen> {
                         ),
                         const SizedBox(height: 4),
                         AdaptiveText(
-                          'CPF: ${user.cpf}',
+                          _currentUser!['email'] ?? '',
                           style: Theme.of(context).textTheme.bodyMedium?.copyWith(
                             color: isDark ? AppTheme.darkTextColorSecondary : AppTheme.textColorSecondary,
                           ),
@@ -364,7 +414,7 @@ class _VaccineCardState extends State<_VaccineCard>
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           AdaptiveText(
-                            widget.vaccine.nomeVacina,
+                            widget.vaccine['nomeVacina'] ?? 'Vacina',
                             style: TextStyle(
                               fontWeight: FontWeight.bold,
                               fontSize: 16,
@@ -379,7 +429,7 @@ class _VaccineCardState extends State<_VaccineCard>
                               borderRadius: BorderRadius.circular(12),
                             ),
                             child: AdaptiveText(
-                              widget.vaccine.dose,
+                              widget.vaccine['dose'] ?? 'Dose',
                               style: TextStyle(
                                 color: primaryColor,
                                 fontWeight: FontWeight.w600,
@@ -404,7 +454,9 @@ class _VaccineCardState extends State<_VaccineCard>
                               ),
                               const SizedBox(width: 8),
                               AdaptiveText(
-                                DateFormat('dd/MM/yyyy', 'pt_BR').format(widget.vaccine.dataAplicacao),
+                                widget.vaccine['dataAplicacao'] != null 
+                                    ? DateFormat('dd/MM/yyyy', 'pt_BR').format(DateTime.parse(widget.vaccine['dataAplicacao']))
+                                    : 'Data não informada',
                                 style: TextStyle(
                                   color: isDark ? AppTheme.darkTextColorSecondary : AppTheme.textColorSecondary,
                                   fontSize: 13,

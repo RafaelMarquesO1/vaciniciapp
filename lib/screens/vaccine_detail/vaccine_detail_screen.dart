@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:intl/intl.dart';
-import 'package:vaciniciapp/models/historico_vacinas.dart';
+
 import 'package:vaciniciapp/theme/app_theme.dart';
 import 'package:vaciniciapp/widgets/adaptive_card.dart';
 import 'package:vaciniciapp/widgets/responsive_widget.dart';
@@ -11,7 +11,7 @@ class VaccineDetailScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final vaccine = ModalRoute.of(context)!.settings.arguments as HistoricoVacina;
+    final vaccine = ModalRoute.of(context)!.settings.arguments as Map<String, dynamic>;
     final isDark = Theme.of(context).brightness == Brightness.dark;
     final primaryColor = isDark ? AppTheme.darkPrimaryColor : AppTheme.primaryColor;
 
@@ -28,7 +28,7 @@ class VaccineDetailScreen extends StatelessWidget {
             foregroundColor: Colors.white,
             flexibleSpace: FlexibleSpaceBar(
               title: Text(
-                vaccine.nomeVacina,
+                vaccine['nomeVacina'] ?? 'Vacina',
                 style: const TextStyle(
                   color: Colors.white,
                   fontWeight: FontWeight.bold,
@@ -98,7 +98,7 @@ class VaccineDetailScreen extends StatelessWidget {
                                 ),
                                 const SizedBox(height: 4),
                                 AdaptiveText(
-                                  vaccine.dose,
+                                  vaccine['dose'] ?? 'Dose',
                                   style: Theme.of(context).textTheme.titleMedium?.copyWith(
                                     fontWeight: FontWeight.bold,
                                     color: isDark ? AppTheme.darkTextColorPrimary : AppTheme.textColorPrimary,
@@ -110,7 +110,7 @@ class VaccineDetailScreen extends StatelessWidget {
                         ],
                       ),
                       
-                      if (vaccine.descricaoVacina != null) ...[
+                      if (vaccine['descricaoVacina'] != null) ...[
                         const SizedBox(height: 20),
                         Container(
                           padding: const EdgeInsets.all(16),
@@ -119,7 +119,7 @@ class VaccineDetailScreen extends StatelessWidget {
                             borderRadius: BorderRadius.circular(16),
                           ),
                           child: Text(
-                            vaccine.descricaoVacina!,
+                            vaccine['descricaoVacina'],
                             style: Theme.of(context).textTheme.bodyMedium?.copyWith(
                               height: 1.5,
                             ),
@@ -147,7 +147,9 @@ class VaccineDetailScreen extends StatelessWidget {
                 _InfoCard(
                   icon: Icons.calendar_today,
                   title: 'Data de Aplicação',
-                  value: DateFormat('dd \'de\' MMMM \'de\' yyyy', 'pt_BR').format(vaccine.dataAplicacao),
+                  value: vaccine['dataAplicacao'] != null 
+                      ? DateFormat('dd \'de\' MMMM \'de\' yyyy', 'pt_BR').format(DateTime.parse(vaccine['dataAplicacao']))
+                      : 'Data não informada',
                 ),
                 
                 const SizedBox(height: 12),
@@ -155,7 +157,7 @@ class VaccineDetailScreen extends StatelessWidget {
                 _InfoCard(
                   icon: Icons.person_outline,
                   title: 'Aplicada por',
-                  value: vaccine.nomeAplicador ?? 'Não informado',
+                  value: vaccine['nomeAplicador'] ?? 'Não informado',
                 ),
                 
                 const SizedBox(height: 12),
@@ -163,7 +165,7 @@ class VaccineDetailScreen extends StatelessWidget {
                 _InfoCard(
                   icon: Icons.inventory_2_outlined,
                   title: 'Lote',
-                  value: vaccine.lote,
+                  value: vaccine['lote'] ?? 'Não informado',
                   copyable: true,
                 ),
                 
@@ -218,7 +220,7 @@ class VaccineDetailScreen extends StatelessWidget {
     );
   }
 
-  void _shareVaccine(BuildContext context, HistoricoVacina vaccine) {
+  void _shareVaccine(BuildContext context, Map<String, dynamic> vaccine) {
     showModalBottomSheet(
       context: context,
       builder: (context) => Container(
@@ -288,14 +290,14 @@ class VaccineDetailScreen extends StatelessWidget {
     );
   }
 
-  void _shareToApp(BuildContext context, HistoricoVacina vaccine, String app) {
+  void _shareToApp(BuildContext context, Map<String, dynamic> vaccine, String app) {
     final text = '''🩹 COMPROVANTE DE VACINAÇÃO
 
-💉 Vacina: ${vaccine.nomeVacina}
-📅 Data: ${DateFormat('dd/MM/yyyy', 'pt_BR').format(vaccine.dataAplicacao)}
-💊 Dose: ${vaccine.dose}
-🏥 Lote: ${vaccine.lote}
-👨‍⚕️ Aplicador: ${vaccine.nomeAplicador ?? 'Não informado'}
+💉 Vacina: ${vaccine['nomeVacina'] ?? 'Vacina'}
+📅 Data: ${vaccine['dataAplicacao'] != null ? DateFormat('dd/MM/yyyy', 'pt_BR').format(DateTime.parse(vaccine['dataAplicacao'])) : 'Data não informada'}
+💊 Dose: ${vaccine['dose'] ?? 'Dose'}
+🏥 Lote: ${vaccine['lote'] ?? 'Não informado'}
+👨⚕️ Aplicador: ${vaccine['nomeAplicador'] ?? 'Não informado'}
 
 📱 VaciniciApp - Sua carteira digital''';
     
@@ -315,14 +317,14 @@ class VaccineDetailScreen extends StatelessWidget {
     );
   }
 
-  void _copyToClipboard(BuildContext context, HistoricoVacina vaccine) {
+  void _copyToClipboard(BuildContext context, Map<String, dynamic> vaccine) {
     final text = '''🩹 COMPROVANTE DE VACINAÇÃO
 
-💉 Vacina: ${vaccine.nomeVacina}
-📅 Data: ${DateFormat('dd/MM/yyyy', 'pt_BR').format(vaccine.dataAplicacao)}
-💊 Dose: ${vaccine.dose}
-🏥 Lote: ${vaccine.lote}
-👨‍⚕️ Aplicador: ${vaccine.nomeAplicador ?? 'Não informado'}
+💉 Vacina: ${vaccine['nomeVacina'] ?? 'Vacina'}
+📅 Data: ${vaccine['dataAplicacao'] != null ? DateFormat('dd/MM/yyyy', 'pt_BR').format(DateTime.parse(vaccine['dataAplicacao'])) : 'Data não informada'}
+💊 Dose: ${vaccine['dose'] ?? 'Dose'}
+🏥 Lote: ${vaccine['lote'] ?? 'Não informado'}
+👨⚕️ Aplicador: ${vaccine['nomeAplicador'] ?? 'Não informado'}
 
 📱 VaciniciApp - Sua carteira digital''';
     
@@ -341,7 +343,7 @@ class VaccineDetailScreen extends StatelessWidget {
     );
   }
 
-  void _downloadVaccine(BuildContext context, HistoricoVacina vaccine) {
+  void _downloadVaccine(BuildContext context, Map<String, dynamic> vaccine) {
     showDialog(
       context: context,
       builder: (context) => AlertDialog(

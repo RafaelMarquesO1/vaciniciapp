@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:vaciniciapp/models/usuario.dart';
+
 import 'package:vaciniciapp/theme/app_theme.dart';
 import 'package:vaciniciapp/widgets/adaptive_card.dart';
 import 'package:vaciniciapp/widgets/responsive_widget.dart';
@@ -9,7 +9,7 @@ class ProfessionalDetailScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final Usuario professional = ModalRoute.of(context)!.settings.arguments as Usuario;
+    final Map<String, dynamic> professional = ModalRoute.of(context)!.settings.arguments as Map<String, dynamic>;
     final theme = Theme.of(context);
     final isDark = theme.brightness == Brightness.dark;
     final primaryColor = isDark ? AppTheme.darkPrimaryColor : AppTheme.primaryColor;
@@ -68,7 +68,7 @@ class ProfessionalDetailScreen extends StatelessWidget {
                         radius: 60,
                         backgroundColor: isDark ? Colors.grey[900] : Colors.white,
                         child: Text(
-                          professional.nomeCompleto.split(' ').map((e) => e[0]).take(2).join(),
+                          (professional['nomeCompleto'] ?? 'P').split(' ').map((e) => e[0]).take(2).join(),
                           style: TextStyle(
                             fontSize: 36,
                             fontWeight: FontWeight.bold,
@@ -79,7 +79,7 @@ class ProfessionalDetailScreen extends StatelessWidget {
                     ),
                     const SizedBox(height: 18),
                     Text(
-                      professional.nomeCompleto,
+                      professional['nomeCompleto'] ?? 'Profissional',
                       style: theme.textTheme.headlineSmall?.copyWith(
                         fontWeight: FontWeight.bold,
                         color: isDark ? Colors.white : Colors.black87,
@@ -96,7 +96,7 @@ class ProfessionalDetailScreen extends StatelessWidget {
                         borderRadius: BorderRadius.circular(20),
                       ),
                       child: Text(
-                        professional.cargo ?? 'Profissional de Saúde',
+                        professional['cargo'] ?? 'Profissional de Saúde',
                         style: TextStyle(
                           fontSize: 16,
                           color: isDark ? Colors.white : primaryColor,
@@ -116,11 +116,11 @@ class ProfessionalDetailScreen extends StatelessWidget {
                       context,
                       'Informações Pessoais',
                       [
-                        _buildInfoItem(context, Icons.badge_outlined, 'CPF', professional.cpf),
-                        if (professional.email != null)
-                          _buildInfoItem(context, Icons.email_outlined, 'E-mail', professional.email!),
-                        if (professional.telefone != null)
-                          _buildInfoItem(context, Icons.phone_outlined, 'Telefone', professional.telefone!),
+                        _buildInfoItem(context, Icons.badge_outlined, 'CPF', professional['cpf'] ?? 'Não informado'),
+                        if (professional['email'] != null)
+                          _buildInfoItem(context, Icons.email_outlined, 'E-mail', professional['email']),
+                        if (professional['telefone'] != null)
+                          _buildInfoItem(context, Icons.phone_outlined, 'Telefone', professional['telefone']),
                       ],
                       isDark,
                     ),
@@ -132,7 +132,7 @@ class ProfessionalDetailScreen extends StatelessWidget {
                       context,
                       'Informações Profissionais',
                       [
-                        _buildInfoItem(context, Icons.work_outline, 'Cargo', professional.cargo ?? 'Não informado'),
+                        _buildInfoItem(context, Icons.work_outline, 'Cargo', professional['cargo'] ?? 'Não informado'),
                         _buildInfoItem(context, Icons.business_outlined, 'Setor', 'Vacinação'),
                         _buildInfoItem(context, Icons.schedule_outlined, 'Horário', '08:00 - 17:00'),
                         _buildInfoItem(context, Icons.location_on_outlined, 'Local', 'UBS Centro'),
@@ -304,13 +304,13 @@ class ProfessionalDetailScreen extends StatelessWidget {
     );
   }
 
-  void _showContactDialog(BuildContext context, Usuario professional, Color primaryColor, bool isDark) {
+  void _showContactDialog(BuildContext context, Map<String, dynamic> professional, Color primaryColor, bool isDark) {
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
         backgroundColor: isDark ? Colors.grey[900] : Colors.white,
         title: Text(
-          'Contatar ${professional.nomeCompleto}',
+          'Contatar ${professional['nomeCompleto'] ?? 'Profissional'}',
           style: TextStyle(color: isDark ? Colors.white : Colors.black87),
         ),
         content: Column(
@@ -319,16 +319,16 @@ class ProfessionalDetailScreen extends StatelessWidget {
             ListTile(
               leading: Icon(Icons.phone, color: primaryColor),
               title: const Text('Telefone'),
-              subtitle: Text(professional.telefone ?? 'Não disponível'),
-              onTap: professional.telefone != null ? () {
+              subtitle: Text(professional['telefone'] ?? 'Não disponível'),
+              onTap: professional['telefone'] != null ? () {
                 Navigator.pop(context);
               } : null,
             ),
             ListTile(
               leading: Icon(Icons.email, color: primaryColor),
               title: const Text('E-mail'),
-              subtitle: Text(professional.email ?? 'Não disponível'),
-              onTap: professional.email != null ? () {
+              subtitle: Text(professional['email'] ?? 'Não disponível'),
+              onTap: professional['email'] != null ? () {
                 Navigator.pop(context);
               } : null,
             ),

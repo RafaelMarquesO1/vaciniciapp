@@ -1,18 +1,54 @@
 import 'package:flutter/material.dart';
-import 'package:vaciniciapp/data/mock_data.dart';
-import 'package:vaciniciapp/models/usuario.dart';
 import 'package:vaciniciapp/routes/app_routes.dart';
 import 'package:vaciniciapp/theme/app_theme.dart';
 import 'package:vaciniciapp/widgets/adaptive_card.dart';
 import 'package:vaciniciapp/widgets/responsive_widget.dart';
+import 'package:vaciniciapp/services/api_service.dart';
 
-class ProfessionalsScreen extends StatelessWidget {
+class ProfessionalsScreen extends StatefulWidget {
   const ProfessionalsScreen({super.key});
+
+  @override
+  State<ProfessionalsScreen> createState() => _ProfessionalsScreenState();
+}
+
+class _ProfessionalsScreenState extends State<ProfessionalsScreen> {
+  List<dynamic> _professionals = [];
+  bool _isLoading = true;
+
+  @override
+  void initState() {
+    super.initState();
+    _loadProfessionals();
+  }
+
+  Future<void> _loadProfessionals() async {
+    try {
+      final users = await ApiService.getUsuarios();
+      // Filtra apenas enfermeiros (masculino e feminino)
+      final professionals = users.where((user) {
+        final cargo = (user['cargo']?.toLowerCase() ?? '');
+        return cargo == 'enfermeiro' || cargo == 'enfermeira';
+      }).toList();
+      setState(() {
+        _professionals = professionals;
+        _isLoading = false;
+      });
+    } catch (e) {
+      setState(() => _isLoading = false);
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final isDark = theme.brightness == Brightness.dark;
+    
+    if (_isLoading) {
+      return const Scaffold(
+        body: Center(child: CircularProgressIndicator()),
+      );
+    }
 
     return Scaffold(
       backgroundColor: isDark ? AppTheme.darkBackgroundColor : AppTheme.backgroundColor,
@@ -63,16 +99,36 @@ class ProfessionalsScreen extends StatelessWidget {
                     ),
                   ),
                   const SizedBox(height: 18),
-                  ListView.separated(
-                    shrinkWrap: true,
-                    physics: const NeverScrollableScrollPhysics(),
-                    itemCount: MockData.enfermeiros.length,
-                    separatorBuilder: (_, __) => const SizedBox(height: 18),
-                    itemBuilder: (context, index) {
-                      final professional = MockData.enfermeiros[index];
-                      return _buildProfessionalCard(context, professional, isDark, theme);
-                    },
-                  ),
+                  _professionals.isEmpty
+                      ? Center(
+                          child: Column(
+                            children: [
+                              const SizedBox(height: 40),
+                              Icon(
+                                Icons.people_outline,
+                                size: 64,
+                                color: (isDark ? AppTheme.darkTextColorSecondary : AppTheme.textColorSecondary).withOpacity(0.5),
+                              ),
+                              const SizedBox(height: 16),
+                              Text(
+                                'Nenhum profissional encontrado',
+                                style: theme.textTheme.titleMedium?.copyWith(
+                                  color: isDark ? AppTheme.darkTextColorSecondary : AppTheme.textColorSecondary,
+                                ),
+                              ),
+                            ],
+                          ),
+                        )
+                      : ListView.separated(
+                          shrinkWrap: true,
+                          physics: const NeverScrollableScrollPhysics(),
+                          itemCount: _professionals.length,
+                          separatorBuilder: (_, __) => const SizedBox(height: 18),
+                          itemBuilder: (context, index) {
+                            final professional = _professionals[index];
+                            return _buildProfessionalCard(context, professional, isDark, theme);
+                          },
+                        ),
                 ],
               ),
             ),
@@ -84,7 +140,7 @@ class ProfessionalsScreen extends StatelessWidget {
 
   Widget _buildProfessionalCard(
     BuildContext context,
-    Usuario professional,
+    Map<String, dynamic> professional,
     bool isDark,
     ThemeData theme,
   ) {
@@ -114,7 +170,7 @@ class ProfessionalsScreen extends StatelessWidget {
                   radius: 32,
                   backgroundColor: AppTheme.primaryColorLight,
                   child: Text(
-                    professional.nomeCompleto.split(' ').map((e) => e[0]).take(2).join(),
+                    (professional['nomeCompleto'] ?? 'P').split(' ').map((e) => e[0]).take(2).join(),
                     style: const TextStyle(
                       fontSize: 20,
                       fontWeight: FontWeight.bold,
@@ -129,7 +185,7 @@ class ProfessionalsScreen extends StatelessWidget {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     AdaptiveText(
-                      professional.nomeCompleto,
+                      professional['nomeCompleto'] ?? 'Profissional',
                       style: theme.textTheme.titleMedium?.copyWith(
                         fontWeight: FontWeight.bold,
                         color: isDark ? AppTheme.darkTextColorPrimary : AppTheme.textColorPrimary,
@@ -137,7 +193,7 @@ class ProfessionalsScreen extends StatelessWidget {
                     ),
                     const SizedBox(height: 4),
                     AdaptiveText(
-                      professional.cargo ?? 'Profissional de Saúde',
+                      professional['cargo'] ?? 'Profissional de Saúde',
                       style: theme.textTheme.bodyMedium?.copyWith(
                         color: isDark ? AppTheme.darkTextColorSecondary : AppTheme.textColorSecondary,
                       ),
