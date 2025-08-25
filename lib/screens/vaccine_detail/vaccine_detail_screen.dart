@@ -157,7 +157,7 @@ class VaccineDetailScreen extends StatelessWidget {
                 _InfoCard(
                   icon: Icons.person_outline,
                   title: 'Aplicada por',
-                  value: vaccine['nomeAplicador'] ?? 'Não informado',
+                  value: vaccine['nomeAplicador'] ?? vaccine['nomeFuncionario'] ?? 'Não informado',
                 ),
                 
                 const SizedBox(height: 12),
@@ -297,7 +297,7 @@ class VaccineDetailScreen extends StatelessWidget {
 📅 Data: ${vaccine['dataAplicacao'] != null ? DateFormat('dd/MM/yyyy', 'pt_BR').format(DateTime.parse(vaccine['dataAplicacao'])) : 'Data não informada'}
 💊 Dose: ${vaccine['dose'] ?? 'Dose'}
 🏥 Lote: ${vaccine['lote'] ?? 'Não informado'}
-👨⚕️ Aplicador: ${vaccine['nomeAplicador'] ?? 'Não informado'}
+👨⚕️ Aplicador: ${vaccine['nomeAplicador'] ?? vaccine['nomeFuncionario'] ?? 'Não informado'}
 
 📱 VaciniciApp - Sua carteira digital''';
     
@@ -324,7 +324,7 @@ class VaccineDetailScreen extends StatelessWidget {
 📅 Data: ${vaccine['dataAplicacao'] != null ? DateFormat('dd/MM/yyyy', 'pt_BR').format(DateTime.parse(vaccine['dataAplicacao'])) : 'Data não informada'}
 💊 Dose: ${vaccine['dose'] ?? 'Dose'}
 🏥 Lote: ${vaccine['lote'] ?? 'Não informado'}
-👨⚕️ Aplicador: ${vaccine['nomeAplicador'] ?? 'Não informado'}
+👨⚕️ Aplicador: ${vaccine['nomeAplicador'] ?? vaccine['nomeFuncionario'] ?? 'Não informado'}
 
 📱 VaciniciApp - Sua carteira digital''';
     
