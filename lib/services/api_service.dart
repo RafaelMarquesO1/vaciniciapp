@@ -332,4 +332,42 @@ class ApiService {
       throw Exception('Erro de conexão: $e');
     }
   }
+
+  static Future<Map<String, dynamic>> cancelAgendamento(int agendamentoId, String motivo) async {
+    try {
+      final response = await http.put(
+        Uri.parse('$baseUrl${ApiConfig.agendamentos}/$agendamentoId/status'),
+        headers: await authHeaders,
+        body: jsonEncode({
+          'status': 'Cancelado',
+          'motivoCancelamento': motivo,
+        }),
+      ).timeout(ApiConfig.requestTimeout);
+
+      if (response.statusCode == 200) {
+        return jsonDecode(response.body);
+      } else {
+        throw Exception('Falha ao cancelar agendamento');
+      }
+    } catch (e) {
+      throw Exception('Erro de conexão: $e');
+    }
+  }
+
+  static Future<Map<String, dynamic>> deleteAgendamento(int agendamentoId) async {
+    try {
+      final response = await http.delete(
+        Uri.parse('$baseUrl${ApiConfig.agendamentos}/$agendamentoId'),
+        headers: await authHeaders,
+      ).timeout(ApiConfig.requestTimeout);
+
+      if (response.statusCode == 200) {
+        return jsonDecode(response.body);
+      } else {
+        throw Exception('Falha ao deletar agendamento');
+      }
+    } catch (e) {
+      throw Exception('Erro de conexão: $e');
+    }
+  }
 }

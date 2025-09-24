@@ -159,13 +159,7 @@ class _LoginScreenState extends State<LoginScreen> {
               ),
               const SizedBox(height: 16),
 
-              // Link para registro
-              TextButton(
-                onPressed: () {
-                  Navigator.pushNamed(context, '/register');
-                },
-                child: const Text('Não tem conta? Cadastre-se'),
-              ),
+              // ...link de registro removido...
             ],
           ),
         ),

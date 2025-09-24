@@ -4,7 +4,6 @@ import 'package:vaciniciapp/screens/main/main_layout.dart';
 import 'package:vaciniciapp/screens/onboarding/onboarding_screen.dart';
 import 'package:vaciniciapp/screens/vaccine_card/vaccine_card_screen.dart';
 import 'package:vaciniciapp/screens/vaccine_detail/vaccine_detail_screen.dart';
-import 'package:vaciniciapp/screens/register/register_screen.dart';
 import 'package:vaciniciapp/screens/schedule/schedule_screen.dart';
 import 'package:vaciniciapp/screens/statistics/statistics_screen.dart';
 import 'package:vaciniciapp/screens/settings/settings_screen.dart';
@@ -15,11 +14,11 @@ import 'package:vaciniciapp/screens/professional_detail/professional_detail_scre
 import 'package:vaciniciapp/screens/terms/terms_screen.dart';
 import 'package:vaciniciapp/screens/help/help_screen.dart';
 import 'package:vaciniciapp/screens/appointments/appointments_screen.dart';
+import 'package:vaciniciapp/screens/cancel_appointment/cancel_appointment_screen.dart';
 
 class AppRoutes {
   static const String onboarding = '/';
   static const String login = '/login';
-  static const String register = '/register';
   static const String forgotPassword = '/forgot-password';
   static const String main = '/main';
   static const String vaccineCard = '/vaccine-card';
@@ -33,11 +32,11 @@ class AppRoutes {
   static const String terms = '/terms';
   static const String help = '/help';
   static const String appointments = '/appointments';
+  static const String cancelAppointment = '/cancel-appointment';
 
   static final Map<String, WidgetBuilder> routes = {
     onboarding: (context) => const OnboardingScreen(),
     login: (context) => const LoginScreen(),
-    register: (context) => const RegisterScreen(),
     forgotPassword: (context) => const ForgotPasswordScreen(),
     main: (context) => const MainLayout(),
     vaccineCard: (context) => const VaccineCardScreen(),
@@ -51,5 +50,9 @@ class AppRoutes {
     terms: (context) => const TermsScreen(),
     help: (context) => const HelpScreen(),
     appointments: (context) => const AppointmentsScreen(),
+    cancelAppointment: (context) {
+      final args = ModalRoute.of(context)?.settings.arguments as Map<String, dynamic>?;
+      return CancelAppointmentScreen(appointment: args ?? {});
+    },
   };
 }
