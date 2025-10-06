@@ -22,6 +22,8 @@ class _ScheduleScreenState extends State<ScheduleScreen> {
   
   List<Map<String, dynamic>> vaccines = [];
   List<Map<String, dynamic>> locations = [];
+  List<Map<String, dynamic>> horariosDisponiveis = [];
+  Map<String, dynamic>? selectedHorario;
   
   @override
   void initState() {
@@ -66,6 +68,26 @@ class _ScheduleScreenState extends State<ScheduleScreen> {
     }
   }
   
+  Future<void> _loadHorariosDisponiveis(int localId) async {
+    try {
+      final horarios = await ApiService.getHorariosDisponiveis(localId);
+      setState(() {
+        horariosDisponiveis = List<Map<String, dynamic>>.from(horarios);
+        selectedHorario = horariosDisponiveis.isNotEmpty ? horariosDisponiveis.first : null;
+      });
+    } catch (e) {
+      setState(() {
+        horariosDisponiveis = [];
+        selectedHorario = null;
+      });
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Erro ao carregar horários: $e')),
+        );
+      }
+    }
+  }
+  
   IconData _getVaccineIcon(String nome) {
     if (nome.toLowerCase().contains('covid')) return Icons.coronavirus;
     if (nome.toLowerCase().contains('gripe') || nome.toLowerCase().contains('influenza')) return Icons.sick;
@@ -83,33 +105,26 @@ class _ScheduleScreenState extends State<ScheduleScreen> {
   }
 
   Future<void> _handleSchedule() async {
-    if (selectedVaccine.isEmpty || selectedLocation.isEmpty) {
+    if (selectedVaccine.isEmpty || selectedLocation.isEmpty || selectedHorario == null) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Selecione uma vacina e um local')),
+        const SnackBar(content: Text('Selecione vacina, local e horário disponível')),
       );
       return;
     }
-    
     setState(() => _isLoading = true);
-    
     try {
       final user = await ApiService.getCurrentUser();
       if (user == null) throw Exception('Usuário não encontrado');
-      
       final selectedVaccineData = vaccines.firstWhere((v) => v['name'] == selectedVaccine);
       final selectedLocationData = locations.firstWhere((l) => l['name'] == selectedLocation);
-      
       final agendamentoData = {
         'pacienteId': user['id'],
         'vacinaId': selectedVaccineData['id'],
         'localId': selectedLocationData['id'],
-        'dataAgendamento': '${DateFormat('yyyy-MM-dd').format(selectedDate)}T${selectedTime.hour.toString().padLeft(2, '0')}:${selectedTime.minute.toString().padLeft(2, '0')}:00',
+        'dataAgendamento': selectedHorario!['data'] + 'T' + selectedHorario!['hora'] + ':00',
         'status': 'Agendado',
       };
-      
-      // Salvar agendamento na API
       await ApiService.createAgendamento(agendamentoData);
-      
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
@@ -119,7 +134,7 @@ class _ScheduleScreenState extends State<ScheduleScreen> {
                 const SizedBox(width: 12),
                 Expanded(
                   child: Text(
-                    'Agendamento confirmado para ${DateFormat('dd/MM/yyyy', 'pt_BR').format(selectedDate)} às ${selectedTime.format(context)}',
+                    'Agendamento confirmado para ${DateFormat('dd/MM/yyyy', 'pt_BR').format(DateTime.parse(selectedHorario!['data']))} às ${selectedHorario!['hora']}',
                   ),
                 ),
               ],
@@ -286,7 +301,10 @@ class _ScheduleScreenState extends State<ScheduleScreen> {
             ...locations.map((location) {
               final isSelected = location['name'] == selectedLocation;
               return GestureDetector(
-                onTap: () => setState(() => selectedLocation = location['name']),
+                onTap: () async {
+                  setState(() => selectedLocation = location['name']);
+                  await _loadHorariosDisponiveis(location['id']);
+                },
                 child: Container(
                   margin: const EdgeInsets.only(bottom: 12),
                   padding: const EdgeInsets.all(16),
@@ -375,149 +393,24 @@ class _ScheduleScreenState extends State<ScheduleScreen> {
               );
             }).toList(),
             const SizedBox(height: 24),
-            Row(
-              children: [
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      AdaptiveText(
-                        'Data', 
-                        style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                          fontWeight: FontWeight.bold,
-                          color: isDark ? AppTheme.darkTextColorPrimary : AppTheme.textColorPrimary,
-                        ),
-                      ),
-                      const SizedBox(height: 12),
-                      GestureDetector(
-                        onTap: () async {
-                          final date = await showDatePicker(
-                            context: context,
-                            initialDate: selectedDate,
-                            firstDate: DateTime.now(),
-                            lastDate: DateTime.now().add(const Duration(days: 90)),
-                          );
-                          if (date != null) setState(() => selectedDate = date);
-                        },
-                        child: Container(
-                          padding: const EdgeInsets.all(16),
-                          decoration: BoxDecoration(
-                            gradient: LinearGradient(
-                              colors: isDark
-                                  ? [AppTheme.darkCardColor, AppTheme.darkSurfaceColor]
-                                  : [Colors.white, AppTheme.primaryColor.withOpacity(0.02)],
-                            ),
-                            borderRadius: BorderRadius.circular(16),
-                            border: Border.all(
-                              color: isDark ? AppTheme.darkTextColorTertiary : AppTheme.primaryColorLight,
-                            ),
-                            boxShadow: [
-                              BoxShadow(
-                                color: isDark
-                                    ? Colors.black.withOpacity(0.3)
-                                    : AppTheme.primaryColor.withOpacity(0.1),
-                                blurRadius: 8,
-                                offset: const Offset(0, 2),
-                              ),
-                            ],
-                          ),
-                          child: Column(
-                            children: [
-                              Icon(Icons.calendar_today, color: primaryColor, size: 24),
-                              const SizedBox(height: 8),
-                              AdaptiveText(
-                                DateFormat('dd/MM', 'pt_BR').format(selectedDate),
-                                style: TextStyle(
-                                  fontWeight: FontWeight.bold,
-                                  fontSize: 16,
-                                  color: isDark ? AppTheme.darkTextColorPrimary : AppTheme.textColorPrimary,
-                                ),
-                              ),
-                              AdaptiveText(
-                                DateFormat('yyyy', 'pt_BR').format(selectedDate),
-                                style: TextStyle(
-                                  color: isDark ? AppTheme.darkTextColorSecondary : AppTheme.textColorSecondary,
-                                  fontSize: 12,
-                                ),
-                              ),
-                            ],
-                          ),
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-                const SizedBox(width: 16),
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      AdaptiveText(
-                        'Horário', 
-                        style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                          fontWeight: FontWeight.bold,
-                          color: isDark ? AppTheme.darkTextColorPrimary : AppTheme.textColorPrimary,
-                        ),
-                      ),
-                      const SizedBox(height: 12),
-                      GestureDetector(
-                        onTap: () async {
-                          final time = await showTimePicker(
-                            context: context,
-                            initialTime: selectedTime,
-                          );
-                          if (time != null) setState(() => selectedTime = time);
-                        },
-                        child: Container(
-                          padding: const EdgeInsets.all(16),
-                          decoration: BoxDecoration(
-                            gradient: LinearGradient(
-                              colors: isDark
-                                  ? [AppTheme.darkCardColor, AppTheme.darkSurfaceColor]
-                                  : [Colors.white, AppTheme.primaryColor.withOpacity(0.02)],
-                            ),
-                            borderRadius: BorderRadius.circular(16),
-                            border: Border.all(
-                              color: isDark ? AppTheme.darkTextColorTertiary : AppTheme.primaryColorLight,
-                            ),
-                            boxShadow: [
-                              BoxShadow(
-                                color: isDark
-                                    ? Colors.black.withOpacity(0.3)
-                                    : AppTheme.primaryColor.withOpacity(0.1),
-                                blurRadius: 8,
-                                offset: const Offset(0, 2),
-                              ),
-                            ],
-                          ),
-                          child: Column(
-                            children: [
-                              Icon(Icons.access_time, color: primaryColor, size: 24),
-                              const SizedBox(height: 8),
-                              AdaptiveText(
-                                selectedTime.format(context),
-                                style: TextStyle(
-                                  fontWeight: FontWeight.bold,
-                                  fontSize: 16,
-                                  color: isDark ? AppTheme.darkTextColorPrimary : AppTheme.textColorPrimary,
-                                ),
-                              ),
-                              AdaptiveText(
-                                'Toque para alterar',
-                                style: TextStyle(
-                                  color: isDark ? AppTheme.darkTextColorSecondary : AppTheme.textColorSecondary,
-                                  fontSize: 12,
-                                ),
-                              ),
-                            ],
-                          ),
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-              ],
+            AdaptiveText(
+              'Horário Disponível',
+              style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                fontWeight: FontWeight.bold,
+                color: isDark ? AppTheme.darkTextColorPrimary : AppTheme.textColorPrimary,
+              ),
             ),
+            const SizedBox(height: 12),
+            horariosDisponiveis.isEmpty
+                ? AdaptiveText('Nenhum horário disponível para este local.', style: TextStyle(color: Colors.red))
+                : DropdownButton<Map<String, dynamic>>(
+                    value: selectedHorario,
+                    items: horariosDisponiveis.map((h) => DropdownMenuItem(
+                      value: h,
+                      child: Text('${DateFormat('dd/MM/yyyy').format(DateTime.parse(h['data']))} - ${h['hora']}'),
+                    )).toList(),
+                    onChanged: (value) => setState(() => selectedHorario = value),
+                  ),
             const SizedBox(height: 40),
             Container(
               width: double.infinity,
