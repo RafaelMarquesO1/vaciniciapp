@@ -350,4 +350,22 @@ class ApiService {
       throw Exception('Erro de conexão: $e');
     }
   }
+
+  static Future<void> cancelAgendamento(int agendamentoId, String motivo) async {
+    try {
+      final response = await http.put(
+        Uri.parse('$baseUrl${ApiConfig.agendamentos}/$agendamentoId/status'),
+        headers: await authHeaders,
+        body: jsonEncode({
+          'status': 'Cancelado',
+          'motivoCancelamento': motivo,
+        }),
+      ).timeout(ApiConfig.requestTimeout);
+      if (response.statusCode != 200) {
+        throw Exception('Falha ao cancelar agendamento');
+      }
+    } catch (e) {
+      throw Exception('Erro de conexão: $e');
+    }
+  }
 }

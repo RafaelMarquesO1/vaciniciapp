@@ -179,7 +179,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
           const SizedBox(height: 16),
           _SettingsTile(
             title: 'Versão do App',
-            subtitle: '9.0', // Versão do App
+            subtitle: '11.0', // Versão do App
             trailing: const SizedBox(),
           ),
           _SettingsTile(
