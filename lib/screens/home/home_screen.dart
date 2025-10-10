@@ -17,6 +17,8 @@ class _HomeScreenState extends State<HomeScreen> {
   final _searchController = TextEditingController();
   Map<String, dynamic>? currentUser;
   bool _isLoading = true;
+  List<dynamic> _searchResults = [];
+  bool _isSearching = false;
 
   @override
   void initState() {
@@ -40,6 +42,69 @@ class _HomeScreenState extends State<HomeScreen> {
   void dispose() {
     _searchController.dispose();
     super.dispose();
+  }
+
+  void _performSearch(String query) async {
+    if (query.isEmpty) {
+      setState(() {
+        _searchResults.clear();
+      });
+      return;
+    }
+
+    setState(() {
+      _isSearching = true;
+    });
+
+    try {
+      final results = <Map<String, dynamic>>[];
+      
+      // Buscar vacinas
+      final vacinas = await ApiService.getVacinas();
+      for (var vacina in vacinas) {
+        if (vacina['nome'].toString().toLowerCase().contains(query.toLowerCase())) {
+          results.add({
+            'type': 'vacina',
+            'title': vacina['nome'],
+            'subtitle': 'Vacina - ${vacina['fabricante'] ?? ''}',
+            'data': vacina,
+          });
+        }
+      }
+      
+      // Buscar agendamentos do usuário
+      if (currentUser != null) {
+        final agendamentos = await ApiService.getAgendamentosByPaciente(currentUser!['id']);
+        for (var agendamento in agendamentos) {
+          if (agendamento['nomeVacina']?.toString().toLowerCase().contains(query.toLowerCase()) == true ||
+              agendamento['nomeLocal']?.toString().toLowerCase().contains(query.toLowerCase()) == true) {
+            results.add({
+              'type': 'agendamento',
+              'title': agendamento['nomeVacina'] ?? 'Agendamento',
+              'subtitle': 'Agendamento - ${agendamento['nomeLocal'] ?? ''}',
+              'data': agendamento,
+            });
+          }
+        }
+      }
+      
+      setState(() {
+        _searchResults = results;
+        _isSearching = false;
+      });
+    } catch (e) {
+      setState(() {
+        _isSearching = false;
+      });
+    }
+  }
+
+  void _navigateToResult(Map<String, dynamic> result) {
+    if (result['type'] == 'vacina') {
+      Navigator.of(context).pushNamed(AppRoutes.vaccineCard);
+    } else if (result['type'] == 'agendamento') {
+      Navigator.of(context).pushNamed(AppRoutes.appointments);
+    }
   }
 
   String _getGreeting() {
@@ -95,6 +160,7 @@ class _HomeScreenState extends State<HomeScreen> {
                   borderRadius: BorderRadius.circular(20),
                   child: TextField(
                     controller: _searchController,
+                    onChanged: _performSearch,
                     decoration: InputDecoration(
                       hintText: 'Buscar vacinas, agendamentos...',
                       hintStyle: TextStyle(
@@ -108,17 +174,67 @@ class _HomeScreenState extends State<HomeScreen> {
                           color: (isDark ? AppTheme.darkPrimaryColor : AppTheme.primaryColor).withOpacity(0.1),
                           borderRadius: BorderRadius.circular(12),
                         ),
-                        child: Icon(
-                          Icons.search,
-                          color: isDark ? AppTheme.darkPrimaryColor : AppTheme.primaryColor,
-                          size: 20,
-                        ),
+                        child: _isSearching
+                            ? SizedBox(
+                                width: 20,
+                                height: 20,
+                                child: CircularProgressIndicator(
+                                  strokeWidth: 2,
+                                  color: isDark ? AppTheme.darkPrimaryColor : AppTheme.primaryColor,
+                                ),
+                              )
+                            : Icon(
+                                Icons.search,
+                                color: isDark ? AppTheme.darkPrimaryColor : AppTheme.primaryColor,
+                                size: 20,
+                              ),
                       ),
+                      suffixIcon: _searchController.text.isNotEmpty
+                          ? IconButton(
+                              icon: const Icon(Icons.clear),
+                              onPressed: () {
+                                _searchController.clear();
+                                setState(() {
+                                  _searchResults.clear();
+                                });
+                              },
+                            )
+                          : null,
                       border: InputBorder.none,
                       contentPadding: const EdgeInsets.symmetric(horizontal: 20, vertical: 18),
                     ),
                   ),
                 ),
+                
+                // Resultados da busca
+                if (_searchResults.isNotEmpty) ...[
+                  const SizedBox(height: 16),
+                  AdaptiveCard(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Padding(
+                          padding: const EdgeInsets.all(16),
+                          child: Text(
+                            'Resultados da busca',
+                            style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                        ),
+                        ..._searchResults.map((result) => ListTile(
+                          leading: Icon(
+                            result['type'] == 'vacina' ? Icons.vaccines : Icons.event,
+                            color: isDark ? AppTheme.darkPrimaryColor : AppTheme.primaryColor,
+                          ),
+                          title: Text(result['title']),
+                          subtitle: Text(result['subtitle']),
+                          onTap: () => _navigateToResult(result),
+                        )),
+                      ],
+                    ),
+                  ),
+                ],
                 
                 const SizedBox(height: 32),
                 

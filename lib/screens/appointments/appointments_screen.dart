@@ -5,6 +5,7 @@ import 'package:vaciniciapp/widgets/responsive_widget.dart';
 import 'package:vaciniciapp/widgets/adaptive_card.dart';
 import 'package:vaciniciapp/services/api_service.dart';
 import 'package:vaciniciapp/routes/app_routes.dart';
+import '../cancelamento_screen.dart';
 
 class AppointmentsScreen extends StatefulWidget {
   const AppointmentsScreen({super.key});
@@ -44,24 +45,28 @@ class _AppointmentsScreenState extends State<AppointmentsScreen> {
   }
 
   void _navigateToCancelAppointment(Map<String, dynamic> agendamento) {
-    final dataAgendamento = DateTime.parse(agendamento['dataAgendamento']);
-    
-    Navigator.pushNamed(
-      context,
-      AppRoutes.cancelAppointment,
-      arguments: {
-        'id': agendamento['id'],
-        'vacina': agendamento['nomeVacina'],
-        'data': DateFormat('dd/MM/yyyy', 'pt_BR').format(dataAgendamento),
-        'horario': DateFormat('HH:mm', 'pt_BR').format(dataAgendamento),
-        'local': agendamento['nomeLocal'],
-        'status': agendamento['status'],
-      },
-    ).then((_) {
-      // Recarregar agendamentos após cancelamento
-      _loadAgendamentos();
-    });
+    try {
+      Navigator.push(
+        context,
+        MaterialPageRoute(
+          builder: (context) => CancelamentoScreen(agendamento: agendamento),
+        ),
+      ).then((result) {
+        if (result == true) {
+          _loadAgendamentos();
+        }
+      });
+    } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('Erro ao abrir tela de cancelamento: $e'),
+          backgroundColor: Colors.red,
+        ),
+      );
+    }
   }
+
+
 
   @override
   Widget build(BuildContext context) {
@@ -176,54 +181,66 @@ class _AppointmentsScreenState extends State<AppointmentsScreen> {
                                   ],
                                 ),
                                 const SizedBox(height: 12),
-                                // Botão de cancelar (apenas para agendamentos futuros e com status "Agendado")
-                                if (dataAgendamento.isAfter(DateTime.now()) && 
-                                    (agendamento['status'] == 'Agendado' || agendamento['status'] == 'Confirmado'))
-                                  Row(
-                                    children: [
-                                      Expanded(
-                                        child: Container(
-                                          height: 40,
-                                          decoration: BoxDecoration(
-                                            border: Border.all(
-                                              color: Colors.red.withOpacity(0.5),
-                                              width: 1.5,
-                                            ),
-                                            borderRadius: BorderRadius.circular(12),
-                                          ),
-                                          child: ElevatedButton(
-                                            onPressed: () => _navigateToCancelAppointment(agendamento),
-                                            style: ElevatedButton.styleFrom(
-                                              backgroundColor: Colors.transparent,
-                                              shadowColor: Colors.transparent,
-                                              shape: RoundedRectangleBorder(
-                                                borderRadius: BorderRadius.circular(12),
-                                              ),
-                                            ),
-                                            child: Row(
-                                              mainAxisAlignment: MainAxisAlignment.center,
-                                              children: [
-                                                Icon(
-                                                  Icons.cancel_outlined,
-                                                  color: Colors.red[600],
-                                                  size: 18,
-                                                ),
-                                                const SizedBox(width: 8),
-                                                Text(
-                                                  'Cancelar Agendamento',
-                                                  style: TextStyle(
-                                                    color: Colors.red[600],
-                                                    fontSize: 14,
-                                                    fontWeight: FontWeight.w600,
-                                                  ),
-                                                ),
-                                              ],
-                                            ),
+                                // Motivo do cancelamento
+                                if (agendamento['status'] == 'Cancelado' && 
+                                    agendamento['motivoCancelamento'] != null &&
+                                    agendamento['motivoCancelamento'].toString().isNotEmpty) ...[
+                                  const SizedBox(height: 8),
+                                  Container(
+                                    padding: const EdgeInsets.all(12),
+                                    decoration: BoxDecoration(
+                                      color: Colors.red.withOpacity(0.1),
+                                      borderRadius: BorderRadius.circular(8),
+                                      border: Border.all(color: Colors.red.withOpacity(0.3)),
+                                    ),
+                                    child: Column(
+                                      crossAxisAlignment: CrossAxisAlignment.start,
+                                      children: [
+                                        Text(
+                                          'Motivo do cancelamento:',
+                                          style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                                            color: Colors.red[700],
+                                            fontWeight: FontWeight.w600,
                                           ),
                                         ),
-                                      ),
-                                    ],
+                                        const SizedBox(height: 4),
+                                        Text(
+                                          agendamento['motivoCancelamento'].toString(),
+                                          style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                                            color: Colors.red[600],
+                                            fontStyle: FontStyle.italic,
+                                          ),
+                                        ),
+                                      ],
+                                    ),
                                   ),
+                                ],
+                                // Botão de cancelar
+                                if (agendamento['status'] == 'Agendado' || agendamento['status'] == 'Confirmado') ...[
+                                  const SizedBox(height: 8),
+                                  SizedBox(
+                                    width: double.infinity,
+                                    height: 40,
+                                    child: OutlinedButton.icon(
+                                      onPressed: () => _navigateToCancelAppointment(agendamento),
+                                      icon: Icon(Icons.cancel_outlined, color: Colors.red[600], size: 18),
+                                      label: Text(
+                                        'Cancelar Agendamento',
+                                        style: TextStyle(
+                                          color: Colors.red[600],
+                                          fontSize: 14,
+                                          fontWeight: FontWeight.w600,
+                                        ),
+                                      ),
+                                      style: OutlinedButton.styleFrom(
+                                        side: BorderSide(color: Colors.red.withOpacity(0.5)),
+                                        shape: RoundedRectangleBorder(
+                                          borderRadius: BorderRadius.circular(12),
+                                        ),
+                                      ),
+                                    ),
+                                  ),
+                                ],
                               ],
                             ),
                           ),

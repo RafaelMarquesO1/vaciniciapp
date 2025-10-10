@@ -37,11 +37,25 @@ class _VaccineCardScreenState extends State<VaccineCardScreen> {
           _vaccines = vaccines;
           _isLoading = false;
         });
+      } else {
+        setState(() => _isLoading = false);
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(content: Text('Usuário não encontrado')),
+          );
+        }
       }
     } catch (e) {
       setState(() => _isLoading = false);
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Erro ao carregar dados: $e')),
+        );
+      }
     }
   }
+
+
 
   List<dynamic> get _filteredVaccines {
     switch (_selectedFilter) {
@@ -262,6 +276,7 @@ class _VaccineCardScreenState extends State<VaccineCardScreen> {
                             color: isDark ? AppTheme.darkTextColorSecondary : AppTheme.textColorSecondary,
                           ),
                         ),
+
                       ],
                     ),
                   ),

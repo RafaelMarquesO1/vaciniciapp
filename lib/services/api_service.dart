@@ -351,7 +351,7 @@ class ApiService {
     }
   }
 
-  static Future<void> cancelAgendamento(int agendamentoId, String motivo) async {
+  static Future<void> cancelarAgendamento(int agendamentoId, String motivo) async {
     try {
       final response = await http.put(
         Uri.parse('$baseUrl${ApiConfig.agendamentos}/$agendamentoId/status'),
@@ -363,6 +363,30 @@ class ApiService {
       ).timeout(ApiConfig.requestTimeout);
       if (response.statusCode != 200) {
         throw Exception('Falha ao cancelar agendamento');
+      }
+    } catch (e) {
+      throw Exception('Erro de conexão: $e');
+    }
+  }
+
+  // Alias para compatibilidade
+  static Future<void> cancelAgendamento(int agendamentoId, String motivo) async {
+    return cancelarAgendamento(agendamentoId, motivo);
+  }
+
+  // Aplicar vacina (marcar como aplicado e criar histórico)
+  static Future<Map<String, dynamic>> aplicarVacina(int agendamentoId, Map<String, dynamic> dadosAplicacao) async {
+    try {
+      final response = await http.post(
+        Uri.parse('$baseUrl${ApiConfig.agendamentos}/$agendamentoId/aplicar'),
+        headers: await authHeaders,
+        body: jsonEncode(dadosAplicacao),
+      ).timeout(ApiConfig.requestTimeout);
+
+      if (response.statusCode == 200) {
+        return jsonDecode(response.body);
+      } else {
+        throw Exception('Falha ao aplicar vacina');
       }
     } catch (e) {
       throw Exception('Erro de conexão: $e');
