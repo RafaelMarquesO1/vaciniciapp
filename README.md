@@ -19,19 +19,7 @@ O **VaciniciApp** é uma carteira digital de vacinação moderna e acessível, d
 - 📊 **Estatísticas** - Acompanhamento da cobertura vacinal
 - 👤 **Perfil Completo** - Gerenciamento de dados pessoais
 - 🌙 **Tema Escuro** - Interface adaptativa para melhor experiência
-- 📱 **Design Responsivo** - Otimizado para todos os dispositivos
-
-## 🎨 Design System
-
-### Tema Claro
-- **Primária**: `#2E7D32` (Verde Saúde)
-- **Secundária**: `#4CAF50` (Verde Claro)
-- **Background**: `#F8F9FA` (Cinza Muito Claro)
-
-### Tema Escuro
-- **Primária**: `#4CAF50` (Verde Claro)
-- **Background**: `#121212` (Preto Material)
-- **Surface**: `#1E1E1E` (Cinza Escuro)
+- 📱 **Design Responsivo** - Otimizado para todos os dispositivos.
 
 ## 🚀 Tecnologias Utilizadas
 
@@ -63,22 +51,9 @@ O **VaciniciApp** é uma carteira digital de vacinação moderna e acessível, d
 - Confirmação com feedback visual
 
 ### ⚙️ Configurações
-- Toggle de tema claro/escuro
 - Seções organizadas com ícones
 - Cards modernos com bordas e sombras
 - Persistência de preferências
-
-## 🎯 Arquitetura do Projeto
-
-```
-lib/
-├── data/           # Dados mockados e modelos
-├── routes/         # Configuração de rotas
-├── screens/        # Telas do aplicativo
-├── theme/          # Sistema de temas
-├── widgets/        # Componentes reutilizáveis
-└── main.dart       # Ponto de entrada
-```
 
 ### Componentes Reutilizáveis
 
@@ -107,10 +82,6 @@ lib/
 - Contraste otimizado para legibilidade
 - Hierarquia visual clara
 - Feedback tátil e visual
-
-## 📄 Licença
-
-Este projeto está sob a licença MIT. Veja o arquivo [LICENSE](LICENSE) para mais detalhes.
 
 ## 📞 Contato
 
