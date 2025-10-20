@@ -337,7 +337,7 @@ class ApiService {
   static Future<List<dynamic>> getHorariosDisponiveis(int localId) async {
     try {
       final response = await http.get(
-        Uri.parse('$baseUrl/locais/$localId/horarios-disponiveis'),
+        Uri.parse('$baseUrl${ApiConfig.agendamentos}/horarios-disponiveis/$localId'),
         headers: await authHeaders,
       ).timeout(ApiConfig.requestTimeout);
 
