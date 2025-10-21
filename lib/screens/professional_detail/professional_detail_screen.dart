@@ -9,7 +9,16 @@ class ProfessionalDetailScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final Map<String, dynamic> professional = ModalRoute.of(context)!.settings.arguments as Map<String, dynamic>;
+    final Map<String, dynamic>? professional = ModalRoute.of(context)?.settings.arguments as Map<String, dynamic>?;
+    
+    if (professional == null) {
+      return Scaffold(
+        appBar: AppBar(title: const Text('Erro')),
+        body: const Center(
+          child: Text('Dados do profissional não encontrados'),
+        ),
+      );
+    }
     final theme = Theme.of(context);
     final isDark = theme.brightness == Brightness.dark;
     final primaryColor = isDark ? AppTheme.darkPrimaryColor : AppTheme.primaryColor;
@@ -111,58 +120,19 @@ class ProfessionalDetailScreen extends StatelessWidget {
 
                     const SizedBox(height: 24),
 
-                    // Informações pessoais
+                    // Avaliações do Profissional
                     _buildInfoSection(
                       context,
-                      'Informações Pessoais',
+                      'Avaliações dos Pacientes',
                       [
-                        _buildInfoItem(context, Icons.badge_outlined, 'CPF', professional['cpf'] ?? 'Não informado'),
-                        if (professional['email'] != null)
-                          _buildInfoItem(context, Icons.email_outlined, 'E-mail', professional['email']),
-                        if (professional['telefone'] != null)
-                          _buildInfoItem(context, Icons.phone_outlined, 'Telefone', professional['telefone']),
+                        _buildReviewItem(context, 'Ana Silva', '⭐⭐⭐⭐⭐', 'Excelente profissional, muito atenciosa!'),
+                        _buildReviewItem(context, 'João Santos', '⭐⭐⭐⭐⭐', 'Aplicação rápida e sem dor. Recomendo!'),
+                        _buildReviewItem(context, 'Maria Costa', '⭐⭐⭐⭐⭐', 'Muito cuidadosa e explicou tudo sobre a vacina.'),
                       ],
                       isDark,
                     ),
 
-                    const SizedBox(height: 20),
 
-                    // Informações profissionais
-                    _buildInfoSection(
-                      context,
-                      'Informações Profissionais',
-                      [
-                        _buildInfoItem(context, Icons.work_outline, 'Cargo', professional['cargo'] ?? 'Não informado'),
-                        _buildInfoItem(context, Icons.business_outlined, 'Setor', 'Vacinação'),
-                        _buildInfoItem(context, Icons.schedule_outlined, 'Horário', '08:00 - 17:00'),
-                        _buildInfoItem(context, Icons.location_on_outlined, 'Local', 'UBS Centro'),
-                      ],
-                      isDark,
-                    ),
-
-                    const SizedBox(height: 32),
-
-                    // Botão de contato
-                    SizedBox(
-                      width: double.infinity,
-                      height: 56,
-                      child: ElevatedButton.icon(
-                        onPressed: () {
-                          _showContactDialog(context, professional, primaryColor, isDark);
-                        },
-                        icon: const Icon(Icons.message_outlined, size: 24),
-                        label: const Text(
-                          'Entrar em Contato',
-                          style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-                        ),
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: primaryColor,
-                          foregroundColor: Colors.white,
-                          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-                          elevation: 2,
-                        ),
-                      ),
-                    ),
                   ],
                 ),
               ),
@@ -226,6 +196,51 @@ class ProfessionalDetailScreen extends StatelessWidget {
             ),
           ),
         ],
+      ),
+    );
+  }
+
+  Widget _buildReviewItem(BuildContext context, String name, String stars, String comment) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 16),
+      child: Container(
+        padding: const EdgeInsets.all(12),
+        decoration: BoxDecoration(
+          color: isDark ? Colors.grey[800] : Colors.grey[50],
+          borderRadius: BorderRadius.circular(8),
+        ),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              children: [
+                Icon(Icons.person, color: isDark ? AppTheme.darkPrimaryColor : AppTheme.primaryColor, size: 20),
+                const SizedBox(width: 8),
+                Text(
+                  name,
+                  style: TextStyle(
+                    fontWeight: FontWeight.bold,
+                    color: isDark ? AppTheme.darkTextColorPrimary : AppTheme.textColorPrimary,
+                  ),
+                ),
+                const Spacer(),
+                Text(
+                  stars,
+                  style: const TextStyle(fontSize: 16),
+                ),
+              ],
+            ),
+            const SizedBox(height: 8),
+            Text(
+              comment,
+              style: TextStyle(
+                color: isDark ? AppTheme.darkTextColorSecondary : AppTheme.textColorSecondary,
+                fontSize: 14,
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }
@@ -304,51 +319,5 @@ class ProfessionalDetailScreen extends StatelessWidget {
     );
   }
 
-  void _showContactDialog(BuildContext context, Map<String, dynamic> professional, Color primaryColor, bool isDark) {
-    showDialog(
-      context: context,
-      builder: (context) => AlertDialog(
-        backgroundColor: isDark ? Colors.grey[900] : Colors.white,
-        title: Text(
-          'Contatar ${professional['nomeCompleto'] ?? 'Profissional'}',
-          style: TextStyle(color: isDark ? Colors.white : Colors.black87),
-        ),
-        content: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            ListTile(
-              leading: Icon(Icons.phone, color: primaryColor),
-              title: const Text('Telefone'),
-              subtitle: Text(professional['telefone'] ?? 'Não disponível'),
-              onTap: professional['telefone'] != null ? () {
-                Navigator.pop(context);
-              } : null,
-            ),
-            ListTile(
-              leading: Icon(Icons.email, color: primaryColor),
-              title: const Text('E-mail'),
-              subtitle: Text(professional['email'] ?? 'Não disponível'),
-              onTap: professional['email'] != null ? () {
-                Navigator.pop(context);
-              } : null,
-            ),
-            ListTile(
-              leading: Icon(Icons.message, color: primaryColor),
-              title: const Text('Mensagem'),
-              subtitle: const Text('Enviar mensagem interna'),
-              onTap: () {
-                Navigator.pop(context);
-              },
-            ),
-          ],
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context),
-            child: Text('Fechar', style: TextStyle(color: primaryColor)),
-          ),
-        ],
-      ),
-    );
-  }
+
 }

@@ -93,6 +93,50 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
     final isDark = Theme.of(context).brightness == Brightness.dark;
     final primaryColor = isDark ? AppTheme.darkPrimaryColor : AppTheme.primaryColor;
     
+    // Bloquear edição para pacientes
+    if (currentUser?['tipoUsuario'] == 'Paciente') {
+      return Scaffold(
+        appBar: AppBar(
+          title: const Text('Perfil'),
+          backgroundColor: Colors.transparent,
+          elevation: 0,
+        ),
+        body: Center(
+          child: AdaptiveCard(
+            margin: const EdgeInsets.all(20),
+            child: Padding(
+              padding: const EdgeInsets.all(20),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Icon(
+                    Icons.lock_outline,
+                    size: 64,
+                    color: primaryColor,
+                  ),
+                  const SizedBox(height: 16),
+                  Text(
+                    'Edição Restrita',
+                    style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                  const SizedBox(height: 8),
+                  Text(
+                    'Pacientes não podem editar suas informações pessoais. Entre em contato com a administração.',
+                    textAlign: TextAlign.center,
+                    style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                      color: isDark ? AppTheme.darkTextColorSecondary : AppTheme.textColorSecondary,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ),
+        ),
+      );
+    }
+    
     return Scaffold(
       backgroundColor: isDark ? AppTheme.darkBackgroundColor : AppTheme.backgroundColor,
       appBar: AppBar(
@@ -161,6 +205,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                   prefixIcon: Icon(Icons.person_outline),
                 ),
                 validator: _validateName,
+                enabled: currentUser?['tipoUsuario'] != 'Paciente',
               ),
               const SizedBox(height: 16),
               TextFormField(
@@ -171,6 +216,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                 ),
                 keyboardType: TextInputType.emailAddress,
                 validator: _validateEmail,
+                enabled: currentUser?['tipoUsuario'] != 'Paciente',
               ),
               const SizedBox(height: 16),
               TextFormField(
@@ -184,6 +230,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                   FilteringTextInputFormatter.digitsOnly,
                   LengthLimitingTextInputFormatter(11),
                 ],
+                enabled: currentUser?['tipoUsuario'] != 'Paciente',
               ),
               const SizedBox(height: 16),
               TextFormField(

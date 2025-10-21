@@ -66,13 +66,6 @@ class HelpScreen extends StatelessWidget {
               subtitle: 'suporte@vaciniciapp.com',
               onTap: () => _showContact(context, 'E-mail: suporte@vaciniciapp.com'),
             ),
-            const SizedBox(height: 12),
-            _HelpOption(
-              icon: Icons.chat_outlined,
-              title: 'Chat Online',
-              subtitle: 'Atendimento em tempo real',
-              onTap: () => _showContact(context, 'Chat disponível das 8h às 18h'),
-            ),
           ],
         ),
       ),
@@ -97,8 +90,12 @@ class HelpScreen extends StatelessWidget {
                 answer: 'Na tela inicial, toque em "Carteira".',
               ),
               _FAQItem(
-                question: 'Posso compartilhar comprovante?',
-                answer: 'Sim! Use o botão "Compartilhar" na tela da vacina.',
+                question: 'Por que não posso editar meu perfil?',
+                answer: 'Por segurança, pacientes não podem alterar dados pessoais. Entre em contato com a administração.',
+              ),
+              _FAQItem(
+                question: 'Como alterar minha senha?',
+                answer: 'Apenas administradores podem alterar senhas. Entre em contato com a administração.',
               ),
             ],
           ),

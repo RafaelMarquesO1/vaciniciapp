@@ -52,7 +52,7 @@ class ApiService {
         await prefs.setString('userName', data['nomeCompleto']);
         await prefs.setString('userType', data['tipoUsuario']);
         if (data['cargo'] != null) {
-          await prefs.setString('userCargo', data['cargo']);
+          await prefs.setString('userCargo', data['cargo'].toString());
         }
         return data;
       } else {

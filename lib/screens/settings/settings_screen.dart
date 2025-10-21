@@ -5,6 +5,12 @@ import 'package:vaciniciapp/routes/app_routes.dart';
 import 'package:vaciniciapp/theme/app_theme.dart';
 import 'package:vaciniciapp/widgets/responsive_widget.dart';
 import 'package:vaciniciapp/widgets/adaptive_card.dart';
+import 'package:vaciniciapp/screens/backup/backup_screen.dart';
+import 'package:vaciniciapp/screens/export/export_screen.dart';
+import 'package:vaciniciapp/screens/privacy/privacy_screen.dart';
+import 'package:vaciniciapp/screens/change_password/change_password_screen.dart';
+import 'package:vaciniciapp/screens/notifications/notifications_screen.dart';
+import 'package:vaciniciapp/services/api_service.dart';
 
 class SettingsScreen extends StatefulWidget {
   const SettingsScreen({super.key});
@@ -17,10 +23,41 @@ class _SettingsScreenState extends State<SettingsScreen> {
   bool notificationsEnabled = true;
   bool reminderEnabled = true;
   bool biometricEnabled = false;
+  Map<String, dynamic>? currentUser;
+  bool _isLoadingUser = true;
+
+  @override
+  void initState() {
+    super.initState();
+    _loadUserData();
+  }
+
+  Future<void> _loadUserData() async {
+    try {
+      final user = await ApiService.getCurrentUser();
+      setState(() {
+        currentUser = user;
+        _isLoadingUser = false;
+      });
+    } catch (e) {
+      setState(() => _isLoadingUser = false);
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
+    
+    if (_isLoadingUser) {
+      return Scaffold(
+        appBar: AppBar(
+          title: const Text('Configurações'),
+          backgroundColor: Colors.transparent,
+          elevation: 0,
+        ),
+        body: const Center(child: CircularProgressIndicator()),
+      );
+    }
     
     return Scaffold(
       appBar: AppBar(
@@ -86,13 +123,10 @@ class _SettingsScreenState extends State<SettingsScreen> {
           ),
           const SizedBox(height: 16),
           _SettingsTile(
-            title: 'Notificações Push',
-            subtitle: 'Receber notificações do app',
-            trailing: Switch(
-              value: notificationsEnabled,
-              onChanged: (value) => setState(() => notificationsEnabled = value),
-              activeColor: Theme.of(context).brightness == Brightness.dark ? AppTheme.darkPrimaryColor : AppTheme.primaryColor,
-            ),
+            title: 'Configurar Notificações',
+            subtitle: 'Gerenciar todas as notificações',
+            trailing: Icon(Icons.chevron_right, color: isDark ? AppTheme.darkTextColorSecondary : AppTheme.textColorSecondary),
+            onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const NotificationsScreen())),
           ),
           _SettingsTile(
             title: 'Lembretes de Vacina',
@@ -123,6 +157,13 @@ class _SettingsScreenState extends State<SettingsScreen> {
               );
             },
           ),
+          if (currentUser?['tipoUsuario'] != 'Paciente') 
+            _SettingsTile(
+              title: 'Alterar Senha',
+              subtitle: 'Modificar senha de acesso',
+              trailing: Icon(Icons.chevron_right, color: isDark ? AppTheme.darkTextColorSecondary : AppTheme.textColorSecondary),
+              onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const ChangePasswordScreen())),
+            ),
           _SettingsTile(
             title: 'Autenticação Biométrica',
             subtitle: 'Usar digital ou Face ID',
@@ -132,25 +173,10 @@ class _SettingsScreenState extends State<SettingsScreen> {
               activeColor: Theme.of(context).brightness == Brightness.dark ? AppTheme.darkPrimaryColor : AppTheme.primaryColor,
             ),
           ),
-          _SettingsTile(
-            title: 'Alterar Senha',
-            subtitle: 'Modificar sua senha de acesso',
-            trailing: Icon(Icons.chevron_right, color: isDark ? AppTheme.darkTextColorSecondary : AppTheme.textColorSecondary),
-            onTap: () {},
-          ),
+
+          // Remover botão de contato com enfermeiro
           const SizedBox(height: 32),
-          _SectionHeader(
-            icon: Icons.people_outline,
-            title: 'Equipe Médica',
-            subtitle: 'Conheça nossos profissionais',
-          ),
-          const SizedBox(height: 16),
-          _SettingsTile(
-            title: 'Profissionais de Saúde',
-            subtitle: 'Ver equipe médica disponível',
-            trailing: Icon(Icons.chevron_right, color: isDark ? AppTheme.darkTextColorSecondary : AppTheme.textColorSecondary),
-            onTap: () => Navigator.of(context).pushNamed(AppRoutes.professionals),
-          ),
+
           const SizedBox(height: 32),
           _SectionHeader(
             icon: Icons.cloud_outlined,
@@ -162,13 +188,13 @@ class _SettingsScreenState extends State<SettingsScreen> {
             title: 'Backup dos Dados',
             subtitle: 'Fazer backup na nuvem',
             trailing: Icon(Icons.chevron_right, color: isDark ? AppTheme.darkTextColorSecondary : AppTheme.textColorSecondary),
-            onTap: () {},
+            onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const BackupScreen())),
           ),
           _SettingsTile(
             title: 'Exportar Dados',
             subtitle: 'Baixar seus dados em PDF',
             trailing: Icon(Icons.chevron_right, color: isDark ? AppTheme.darkTextColorSecondary : AppTheme.textColorSecondary),
-            onTap: () {},
+            onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const ExportScreen())),
           ),
           const SizedBox(height: 32),
           _SectionHeader(
@@ -192,7 +218,13 @@ class _SettingsScreenState extends State<SettingsScreen> {
             title: 'Política de Privacidade',
             subtitle: 'Como tratamos seus dados',
             trailing: Icon(Icons.chevron_right, color: isDark ? AppTheme.darkTextColorSecondary : AppTheme.textColorSecondary),
-            onTap: () {},
+            onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const PrivacyScreen())),
+          ),
+          _SettingsTile(
+            title: 'Ajuda e Suporte',
+            subtitle: 'Central de ajuda e contato',
+            trailing: Icon(Icons.chevron_right, color: isDark ? AppTheme.darkTextColorSecondary : AppTheme.textColorSecondary),
+            onTap: () => Navigator.of(context).pushNamed(AppRoutes.help),
           ),
           ],
         ),
